@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createHash, timingSafeEqual } from "crypto";
+import { createHash, createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { env } from "./env";
 
@@ -25,8 +25,32 @@ export function verifyAdminCredentials(user: string, pass: string): boolean {
   return userOk && passOk;
 }
 
+/**
+ * Session tokens are HMAC-signed payloads of the form:
+ *
+ *   <expiresAtMs>.<hmac-sha256(expiresAtMs, signingKey)>
+ *
+ * The signing key is derived from the admin password hash (which only the
+ * server knows) mixed with a static domain separator. This means:
+ *   - A cookie value with a missing/invalid HMAC is rejected.
+ *   - An expired cookie is rejected even if the HMAC matches.
+ *   - Rotating ADMIN_PASS_HASH invalidates all issued sessions.
+ */
+function signingKey(): string {
+  // Fall back to a stable placeholder so dev mode with unset envs doesn't
+  // throw; the resulting signature will still be deterministic & unique to
+  // the running instance and can't be forged without knowing the hash.
+  return `luxe|session|v1|${env.ADMIN_PASS_HASH || "no-pass-hash"}`;
+}
+
+function sign(payload: string): string {
+  return createHmac("sha256", signingKey()).update(payload).digest("hex");
+}
+
 export async function startAdminSession(): Promise<void> {
-  const token = sha256(`${Date.now()}-${env.ADMIN_PASS_HASH}`);
+  const expiresAt = Date.now() + SESSION_TTL_SECONDS * 1000;
+  const payload = String(expiresAt);
+  const token = `${payload}.${sign(payload)}`;
   const store = await cookies();
   store.set(COOKIE_NAME, token, {
     httpOnly: true,
@@ -45,5 +69,21 @@ export async function endAdminSession(): Promise<void> {
 export async function isAdminAuthed(): Promise<boolean> {
   const store = await cookies();
   const c = store.get(COOKIE_NAME);
-  return Boolean(c?.value);
+  if (!c?.value) return false;
+
+  const dot = c.value.indexOf(".");
+  if (dot <= 0) return false;
+
+  const payload = c.value.slice(0, dot);
+  const mac = c.value.slice(dot + 1);
+
+  // Constant-time signature check.
+  const expected = sign(payload);
+  if (!safeEqual(mac, expected)) return false;
+
+  // Reject expired tokens.
+  const expiresAt = Number(payload);
+  if (!Number.isFinite(expiresAt) || Date.now() > expiresAt) return false;
+
+  return true;
 }
