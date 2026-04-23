@@ -1,0 +1,163 @@
+[
+  {
+    "id": "p1",
+    "title": "قميص رجالي كلاسيكي",
+    "category": "men",
+    "price": 4500,
+    "oldPrice": 6000,
+    "image": "https://picsum.photos/seed/shirt10/800/1000",
+    "gallery": [
+      "https://picsum.photos/seed/shirt10/800/1000",
+      "https://picsum.photos/seed/shirt11/800/1000",
+      "https://picsum.photos/seed/shirt12/800/1000"
+    ],
+    "description": "قميص رجالي قطن ممتاز بتصميم كلاسيكي راقٍ، مثالي للمناسبات الرسمية واليومية.",
+    "badge": "خصم -25%",
+    "stock": 20
+  },
+  {
+    "id": "p2",
+    "title": "بدلة رجالية راقية",
+    "category": "men",
+    "price": 15000,
+    "oldPrice": 18000,
+    "image": "https://picsum.photos/seed/suit10/800/1000",
+    "gallery": [
+      "https://picsum.photos/seed/suit10/800/1000",
+      "https://picsum.photos/seed/suit11/800/1000"
+    ],
+    "description": "بدلة رجالية فاخرة بقماش إيطالي عالي الجودة، تفصيل متقن يمنحك إطلالة استثنائية.",
+    "badge": "🔥 رائج",
+    "stock": 8
+  },
+  {
+    "id": "p3",
+    "title": "فستان سهرة طويل",
+    "category": "women",
+    "price": 12000,
+    "oldPrice": null,
+    "image": "https://picsum.photos/seed/dress10/800/1000",
+    "gallery": [
+      "https://picsum.photos/seed/dress10/800/1000",
+      "https://picsum.photos/seed/dress11/800/1000",
+      "https://picsum.photos/seed/dress12/800/1000"
+    ],
+    "description": "فستان سهرة طويل بتطريز يدوي فاخر، يليق بإطلالتك في أرقى المناسبات.",
+    "badge": "جديد",
+    "stock": 12
+  },
+  {
+    "id": "p4",
+    "title": "عباءة مطرزة",
+    "category": "women",
+    "price": 8500,
+    "oldPrice": 10500,
+    "image": "https://picsum.photos/seed/abaya10/800/1000",
+    "gallery": [
+      "https://picsum.photos/seed/abaya10/800/1000",
+      "https://picsum.photos/seed/abaya11/800/1000"
+    ],
+    "description": "عباءة عصرية بتطريز تقليدي أنيق، مريحة ومميزة.",
+    "badge": "⭐ الأكثر مبيعاً",
+    "stock": 15
+  },
+  {
+    "id": "p5",
+    "title": "حذاء أطفال رياضي",
+    "category": "kids",
+    "price": 3200,
+    "oldPrice": 4000,
+    "image": "https://picsum.photos/seed/kidsShoes0/800/1000",
+    "gallery": ["https://picsum.photos/seed/kidsShoes0/800/1000"],
+    "description": "حذاء رياضي مريح للأطفال بألوان عصرية وتصميم خفيف.",
+    "badge": "🔥 رائج",
+    "stock": 30
+  },
+  {
+    "id": "p6",
+    "title": "ساعة فاخرة",
+    "category": "accessories",
+    "price": 13500,
+    "oldPrice": 16000,
+    "image": "https://picsum.photos/seed/watch10/800/1000",
+    "gallery": [
+      "https://picsum.photos/seed/watch10/800/1000",
+      "https://picsum.photos/seed/watch11/800/1000"
+    ],
+    "description": "ساعة يد فاخرة بحزام جلد إيطالي ومينا أنيقة.",
+    "badge": "🔥 رائج",
+    "stock": 10
+  },
+  {
+    "id": "p7",
+    "title": "محفظة جلدية فاخرة",
+    "category": "accessories",
+    "price": 6800,
+    "oldPrice": null,
+    "image": "https://picsum.photos/seed/wallet10/800/1000",
+    "gallery": ["https://picsum.photos/seed/wallet10/800/1000"],
+    "description": "محفظة جلد طبيعي بخياطة متقنة ومساحة واسعة.",
+    "badge": "⭐ الأكثر مبيعاً",
+    "stock": 25
+  },
+  {
+    "id": "p8",
+    "title": "حذاء رياضي راقٍ",
+    "category": "shoes",
+    "price": 7200,
+    "oldPrice": 8500,
+    "image": "https://picsum.photos/seed/sneakers0/800/1000",
+    "gallery": ["https://picsum.photos/seed/sneakers0/800/1000"],
+    "description": "حذاء رياضي بتصميم راقٍ يجمع الأناقة والراحة.",
+    "badge": "جديد",
+    "stock": 18
+  },
+  {
+    "id": "p9",
+    "title": "حذاء رسمي جلدي",
+    "category": "shoes",
+    "price": 9800,
+    "oldPrice": null,
+    "image": "https://picsum.photos/seed/formalShoes0/800/1000",
+    "gallery": ["https://picsum.photos/seed/formalShoes0/800/1000"],
+    "description": "حذاء جلد طبيعي بتفصيل كلاسيكي للمناسبات الرسمية.",
+    "badge": "⭐ الأكثر مبيعاً",
+    "stock": 14
+  },
+  {
+    "id": "p10",
+    "title": "عطر شرقي فاخر",
+    "category": "perfumes",
+    "price": 8500,
+    "oldPrice": 11000,
+    "image": "https://picsum.photos/seed/perfume10/800/1000",
+    "gallery": ["https://picsum.photos/seed/perfume10/800/1000"],
+    "description": "عطر شرقي بمكونات عود وعنبر طبيعية، يبقى لساعات طويلة.",
+    "badge": "جديد",
+    "stock": 40
+  },
+  {
+    "id": "p11",
+    "title": "حقيبة نسائية أنيقة",
+    "category": "accessories",
+    "price": 7900,
+    "oldPrice": 9500,
+    "image": "https://picsum.photos/seed/bag10/800/1000",
+    "gallery": ["https://picsum.photos/seed/bag10/800/1000"],
+    "description": "حقيبة نسائية عصرية بجلد مصقول وتصميم مميز.",
+    "badge": "🔥 رائج",
+    "stock": 16
+  },
+  {
+    "id": "p12",
+    "title": "نظارة شمسية فاخرة",
+    "category": "accessories",
+    "price": 5600,
+    "oldPrice": null,
+    "image": "https://picsum.photos/seed/sunglasses0/800/1000",
+    "gallery": ["https://picsum.photos/seed/sunglasses0/800/1000"],
+    "description": "نظارة شمسية بعدسات مستقطبة وإطار خفيف فاخر.",
+    "badge": "جديد",
+    "stock": 22
+  }
+]
