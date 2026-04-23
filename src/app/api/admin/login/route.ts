@@ -4,7 +4,16 @@ import { startAdminSession, verifyAdminCredentials } from "@/server/auth";
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
-  const { user, pass } = (await req.json()) as { user?: string; pass?: string };
+  let body: { user?: string; pass?: string };
+  try {
+    body = (await req.json()) as { user?: string; pass?: string };
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "Invalid JSON body" },
+      { status: 400 }
+    );
+  }
+  const { user, pass } = body;
   if (!user || !pass) {
     return NextResponse.json(
       { success: false, error: "بيانات ناقصة" },
