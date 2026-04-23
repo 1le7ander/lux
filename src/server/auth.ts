@@ -35,12 +35,16 @@ export function verifyAdminCredentials(user: string, pass: string): boolean {
  *   - A cookie value with a missing/invalid HMAC is rejected.
  *   - An expired cookie is rejected even if the HMAC matches.
  *   - Rotating ADMIN_PASS_HASH invalidates all issued sessions.
+ *   - If ADMIN_PASS_HASH is not configured, **no** session is ever valid —
+ *     see `credsConfigured()` below.
  */
+function credsConfigured(): boolean {
+  return Boolean(env.ADMIN_USER_HASH && env.ADMIN_PASS_HASH);
+}
+
 function signingKey(): string {
-  // Fall back to a stable placeholder so dev mode with unset envs doesn't
-  // throw; the resulting signature will still be deterministic & unique to
-  // the running instance and can't be forged without knowing the hash.
-  return `luxe|session|v1|${env.ADMIN_PASS_HASH || "no-pass-hash"}`;
+  // Callers must check credsConfigured() before signing / verifying.
+  return `luxe|session|v1|${env.ADMIN_PASS_HASH}`;
 }
 
 function sign(payload: string): string {
@@ -48,6 +52,9 @@ function sign(payload: string): string {
 }
 
 export async function startAdminSession(): Promise<void> {
+  if (!credsConfigured()) {
+    throw new Error("admin credentials not configured");
+  }
   const expiresAt = Date.now() + SESSION_TTL_SECONDS * 1000;
   const payload = String(expiresAt);
   const token = `${payload}.${sign(payload)}`;
@@ -67,6 +74,11 @@ export async function endAdminSession(): Promise<void> {
 }
 
 export async function isAdminAuthed(): Promise<boolean> {
+  // If the credential env vars are not configured, the signing key would
+  // collapse to a known/weak value — reject every session in that case so a
+  // misconfigured deployment cannot be exploited with a forged cookie.
+  if (!credsConfigured()) return false;
+
   const store = await cookies();
   const c = store.get(COOKIE_NAME);
   if (!c?.value) return false;

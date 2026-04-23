@@ -9,12 +9,19 @@
  *   Extensions → Apps Script → paste this file → Deploy → Web app
  *   (Execute as: me, Who has access: Anyone)
  *
- * All mutating requests must include { key: KEY } — this is the shared
- * secret that matches ADMIN_KEY in the Next.js .env.local.
+ * All mutating requests must include { key: <ADMIN_KEY> } — this is the
+ * shared secret stored in Script Properties (see README).
  */
 
 // ───────────────────────── CONFIG ─────────────────────────
-const KEY              = 'agency2025admin';
+// The shared secret is stored in Script Properties, NOT in source, so it is
+// never committed to git. Set it once in the Apps Script UI:
+//   Project Settings → Script properties → add "ADMIN_KEY" = <same value as
+//   ADMIN_KEY in your Next.js .env.local>
+function _key() {
+  return PropertiesService.getScriptProperties().getProperty('ADMIN_KEY') || '';
+}
+
 const DRIVE_FOLDER_ID  = '1viIogXrZm2dpdf3kKO-ohrO_2Ejsgss6';
 const SHEETS_ID        = '1mkPF4ObtuS3wmjLjmG5UE18lq6dpW_1LWuT15r08dM0';
 const PRODUCTS_SHEET   = 'products';
@@ -60,7 +67,9 @@ function _route(action, body) {
 }
 
 function _requireKey(body) {
-  if (body && body.key === KEY) return null;
+  const expected = _key();
+  if (!expected) return _json({ success: false, error: 'Server misconfigured: ADMIN_KEY script property not set' });
+  if (body && body.key === expected) return null;
   return _json({ success: false, error: 'Unauthorized' });
 }
 

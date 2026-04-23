@@ -17,22 +17,28 @@ The script will auto-create the `products` and `orders` tabs on first use.
 
 1. Visit https://script.google.com and create a new project named `LUXE`.
 2. Paste the contents of [`Code.gs`](./Code.gs).
-3. Edit the top of the file:
-   - `KEY` — shared secret (also placed in `.env.local` as `ADMIN_KEY`).
+3. **Set the shared secret** in **Project Settings → Script properties**:
+   - Add a property named `ADMIN_KEY` with a strong random value.
+   - Use the same value for `ADMIN_KEY` in your Next.js `.env.local`.
+   - Generate one with:
+     `node -e 'console.log(require("crypto").randomBytes(32).toString("hex"))'`
+   - **Never commit this value to source.** The script reads it via
+     `PropertiesService.getScriptProperties()` so the file is safe to share.
+4. Edit the constants at the top of `Code.gs`:
    - `DRIVE_FOLDER_ID` — your Drive folder.
    - `SHEETS_ID` — your Sheet.
    - `NOTIFY_EMAIL` — the address that receives a notification for every new
      order and every confirmation (defaults to `heamtan126@gmail.com`).
-4. **Deploy → New deployment → Web app**
+5. **Deploy → New deployment → Web app**
    - Description: `LUXE v1`
    - Execute as: **Me**
    - Who has access: **Anyone**
-5. On first deploy, Google will prompt for authorization. Grant access to:
+6. On first deploy, Google will prompt for authorization. Grant access to:
    - Google Drive (for image uploads)
    - Google Sheets (for the products/orders database)
    - **Gmail / `MailApp`** (for order notifications — the script sends email
      from the account that owns it, no SMTP password required)
-6. Copy the Web App URL (`…/exec`) → paste into `APPS_SCRIPT_URL` in your
+7. Copy the Web App URL (`…/exec`) → paste into `APPS_SCRIPT_URL` in your
    Next.js `.env.local`.
 
 ## Email notifications
