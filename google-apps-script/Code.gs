@@ -20,6 +20,10 @@ const SHEETS_ID        = '1mkPF4ObtuS3wmjLjmG5UE18lq6dpW_1LWuT15r08dM0';
 const PRODUCTS_SHEET   = 'products';
 const ORDERS_SHEET     = 'orders';
 
+// Store owner — receives an email for every new order and every confirmation.
+const NOTIFY_EMAIL     = 'heamtan126@gmail.com';
+const STORE_NAME       = 'LUXE';
+
 // ──────────────────────── ENTRY POINTS ─────────────────────
 function doGet(e) {
   const action = (e && e.parameter && e.parameter.action) || 'ping';
@@ -200,10 +204,12 @@ function listOrders() {
 function saveOrder(o) {
   if (!o || !o.id || !o.customer) return { success: false, error: 'Invalid order' };
   const sh = _ordersSheet();
+  const createdAt = o.createdAt || new Date().toISOString();
+  const status = o.status || 'new';
   sh.appendRow([
     o.id,
-    o.createdAt || new Date().toISOString(),
-    o.status || 'new',
+    createdAt,
+    status,
     o.customer.name || '',
     o.customer.phone || '',
     o.customer.wilaya || '',
@@ -214,6 +220,14 @@ function saveOrder(o) {
     Number(o.shipping) || 0,
     Number(o.total) || 0,
   ]);
+
+  // Best-effort self-notification. Never let email failures break the order save.
+  try {
+    _sendOrderEmail({ ...o, createdAt: createdAt, status: status }, 'new');
+  } catch (err) {
+    Logger.log('Email notification failed: ' + err);
+  }
+
   return { success: true, order: o };
 }
 
@@ -227,8 +241,121 @@ function updateOrderStatus(id, status) {
   for (let i = 1; i < values.length; i++) {
     if (String(values[i][idIdx]) === String(id)) {
       sh.getRange(i + 1, statusIdx + 1).setValue(status);
+
+      // When the status flips to "confirmed", send a confirmation email.
+      if (String(status).toLowerCase() === 'confirmed') {
+        try {
+          const order = _rowToOrder(headers, values[i]);
+          order.status = status;
+          _sendOrderEmail(order, 'confirmed');
+        } catch (err) {
+          Logger.log('Confirmation email failed: ' + err);
+        }
+      }
+
       return { success: true };
     }
   }
   return { success: false, error: 'Order not found' };
+}
+
+// ───────────────────── EMAIL NOTIFICATIONS ─────────────────
+function _rowToOrder(headers, row) {
+  const o = {};
+  headers.forEach((h, i) => (o[h] = row[i]));
+  let items = [];
+  try { items = o.items ? JSON.parse(o.items) : []; } catch (e) { items = []; }
+  return {
+    id: o.id,
+    createdAt: o.createdAt,
+    status: o.status,
+    customer: {
+      name: o.name,
+      phone: o.phone,
+      wilaya: o.wilaya,
+      commune: o.commune,
+      notes: o.notes,
+    },
+    items: items,
+    subtotal: Number(o.subtotal) || 0,
+    shipping: Number(o.shipping) || 0,
+    total: Number(o.total) || 0,
+  };
+}
+
+function _fmtDZD(n) {
+  return (Number(n) || 0).toLocaleString('en-US') + ' DZD';
+}
+
+function _esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+/**
+ * Sends a self-notification email to NOTIFY_EMAIL for each new order and each
+ * confirmation. Uses MailApp.sendEmail which runs from the Apps Script owner's
+ * account — no SMTP credentials are needed.
+ */
+function _sendOrderEmail(order, kind) {
+  if (!NOTIFY_EMAIL) return;
+  const c = order.customer || {};
+  const items = Array.isArray(order.items) ? order.items : [];
+
+  const isConfirmed = kind === 'confirmed';
+  const subject = isConfirmed
+    ? ('[' + STORE_NAME + '] تأكيد طلب #' + order.id + ' — ' + _fmtDZD(order.total))
+    : ('[' + STORE_NAME + '] طلب جديد #' + order.id + ' — ' + _fmtDZD(order.total));
+
+  const rows = items.map(function (it) {
+    return '<tr>'
+      + '<td style="padding:8px;border-bottom:1px solid #eee">' + _esc(it.title || '') + '</td>'
+      + '<td style="padding:8px;border-bottom:1px solid #eee;text-align:center">' + (Number(it.qty) || 1) + '</td>'
+      + '<td style="padding:8px;border-bottom:1px solid #eee;text-align:right">' + _fmtDZD(it.price) + '</td>'
+      + '</tr>';
+  }).join('');
+
+  const banner = isConfirmed ? '#059669' : '#7c3aed';
+  const title  = isConfirmed ? 'تم تأكيد الطلب ✅' : 'طلب جديد 🛒';
+
+  const html = ''
+    + '<div dir="rtl" style="font-family:\'Segoe UI\',Tahoma,sans-serif;max-width:640px;margin:0 auto;background:#fafafa;padding:24px">'
+    +   '<div style="background:' + banner + ';color:#fff;padding:20px 24px;border-radius:12px 12px 0 0">'
+    +     '<h1 style="margin:0;font-size:22px">' + title + '</h1>'
+    +     '<p style="margin:6px 0 0;font-size:14px;opacity:.9">' + STORE_NAME + ' — ' + _esc(order.id) + '</p>'
+    +   '</div>'
+    +   '<div style="background:#fff;padding:24px;border-radius:0 0 12px 12px;border:1px solid #eee;border-top:0">'
+    +     '<h2 style="margin:0 0 12px;font-size:16px;color:#111">بيانات العميل</h2>'
+    +     '<p style="margin:4px 0;font-size:14px"><b>الاسم:</b> ' + _esc(c.name) + '</p>'
+    +     '<p style="margin:4px 0;font-size:14px"><b>الهاتف:</b> ' + _esc(c.phone) + '</p>'
+    +     '<p style="margin:4px 0;font-size:14px"><b>الولاية:</b> ' + _esc(c.wilaya) + '</p>'
+    +     '<p style="margin:4px 0;font-size:14px"><b>البلدية:</b> ' + _esc(c.commune) + '</p>'
+    +     (c.notes ? '<p style="margin:4px 0;font-size:14px"><b>ملاحظات:</b> ' + _esc(c.notes) + '</p>' : '')
+    +     '<h2 style="margin:20px 0 12px;font-size:16px;color:#111">المنتجات</h2>'
+    +     '<table style="width:100%;border-collapse:collapse;font-size:14px">'
+    +       '<thead><tr style="background:#f5f5f5">'
+    +         '<th style="padding:8px;text-align:right">المنتج</th>'
+    +         '<th style="padding:8px;text-align:center">الكمية</th>'
+    +         '<th style="padding:8px;text-align:right">السعر</th>'
+    +       '</tr></thead>'
+    +       '<tbody>' + rows + '</tbody>'
+    +     '</table>'
+    +     '<div style="margin-top:20px;padding-top:16px;border-top:2px solid #eee;font-size:14px">'
+    +       '<p style="margin:4px 0"><b>المجموع الفرعي:</b> ' + _fmtDZD(order.subtotal) + '</p>'
+    +       '<p style="margin:4px 0"><b>الشحن:</b> ' + _fmtDZD(order.shipping) + '</p>'
+    +       '<p style="margin:8px 0 0;font-size:18px;color:' + banner + '"><b>المجموع: ' + _fmtDZD(order.total) + '</b></p>'
+    +     '</div>'
+    +     '<p style="margin-top:24px;color:#666;font-size:12px;text-align:center">'
+    +       _esc(order.createdAt) + ' • ' + STORE_NAME
+    +     '</p>'
+    +   '</div>'
+    + '</div>';
+
+  MailApp.sendEmail({
+    to: NOTIFY_EMAIL,
+    subject: subject,
+    htmlBody: html,
+    name: STORE_NAME + ' Notifications',
+  });
 }

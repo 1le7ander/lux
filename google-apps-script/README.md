@@ -21,12 +21,29 @@ The script will auto-create the `products` and `orders` tabs on first use.
    - `KEY` — shared secret (also placed in `.env.local` as `ADMIN_KEY`).
    - `DRIVE_FOLDER_ID` — your Drive folder.
    - `SHEETS_ID` — your Sheet.
+   - `NOTIFY_EMAIL` — the address that receives a notification for every new
+     order and every confirmation (defaults to `heamtan126@gmail.com`).
 4. **Deploy → New deployment → Web app**
    - Description: `LUXE v1`
    - Execute as: **Me**
    - Who has access: **Anyone**
-5. Copy the Web App URL (`…/exec`) → paste into `APPS_SCRIPT_URL` in your
+5. On first deploy, Google will prompt for authorization. Grant access to:
+   - Google Drive (for image uploads)
+   - Google Sheets (for the products/orders database)
+   - **Gmail / `MailApp`** (for order notifications — the script sends email
+     from the account that owns it, no SMTP password required)
+6. Copy the Web App URL (`…/exec`) → paste into `APPS_SCRIPT_URL` in your
    Next.js `.env.local`.
+
+## Email notifications
+
+Whenever `saveOrder` appends a new order, an HTML email is sent to
+`NOTIFY_EMAIL` with the customer, items, and totals. When `updateOrderStatus`
+flips an order's status to `confirmed`, a second "confirmation" email is sent
+to the same address. All sending uses `MailApp.sendEmail` — the Apps Script
+runtime signs the mail with the owner's Google account, so no Gmail password
+or SMTP server is needed. Email failures are caught and logged, never blocking
+the order save.
 
 ## Actions
 
