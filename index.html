@@ -1517,7 +1517,7 @@ function attachValidation(){
 function validateAll(){
   let ok=true;
   $$('.form-row').forEach(row=>{
-    const inp=$('input,textarea',row);if(!inp||!inp.id)return;
+    const inp=$('input[id],textarea[id]',row);if(!inp)return;
     if(!validateField(inp.id))ok=false;
   });
   if(!ok)toast('يرجى تصحيح الأخطاء في النموذج','error');
