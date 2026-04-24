@@ -26,7 +26,9 @@ export function DashboardCharts() {
     const byDay = new Map<string, number>();
     const byStatus = new Map<string, number>();
     for (const o of orders) {
-      const day = new Date(o.createdAt).toISOString().slice(0, 10);
+      const parsed = new Date(o.createdAt);
+      if (Number.isNaN(parsed.getTime())) continue;
+      const day = parsed.toISOString().slice(0, 10);
       byDay.set(day, (byDay.get(day) ?? 0) + o.total);
       byStatus.set(o.status, (byStatus.get(o.status) ?? 0) + 1);
     }
