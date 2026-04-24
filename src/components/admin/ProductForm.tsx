@@ -75,11 +75,13 @@ export function ProductForm({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur md:items-center"
+      className="fixed inset-0 z-50 flex animate-fade-in items-end justify-center bg-black/70 backdrop-blur-md md:items-center md:p-4"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
     >
       <div
-        className="flex w-full max-w-2xl flex-col rounded-t-3xl bg-ink-1 p-6 ring-1 ring-white/10 md:max-h-[90vh] md:overflow-y-auto md:rounded-3xl"
+        className="flex max-h-[92dvh] w-full max-w-2xl animate-slide-up flex-col overflow-y-auto rounded-t-3xl bg-ink-1/95 p-5 shadow-[0_-20px_60px_-20px_rgba(0,0,0,0.7)] ring-1 ring-white/10 backdrop-blur-xl sm:p-6 md:max-h-[90vh] md:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="mb-4 flex items-center justify-between">
@@ -95,7 +97,7 @@ export function ProductForm({
           </button>
         </header>
 
-        <div className="grid gap-4 md:grid-cols-[220px_1fr]">
+        <div className="grid gap-4 md:grid-cols-[240px_1fr]">
           <div>
             <label className="label">الصورة الرئيسية</label>
             <ImageUpload
@@ -183,7 +185,7 @@ export function ProductForm({
           </div>
         </div>
 
-        <footer className="mt-6 flex items-center justify-between">
+        <footer className="mt-6 flex flex-col-reverse items-stretch gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
           <button onClick={onClose} className="btn btn-ghost">
             إلغاء
           </button>

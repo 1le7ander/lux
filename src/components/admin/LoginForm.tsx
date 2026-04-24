@@ -34,21 +34,28 @@ export function LoginForm() {
   return (
     <form
       onSubmit={submit}
-      className="w-full max-w-sm card p-6"
+      className="relative w-full max-w-sm card animate-slide-up p-7 sm:p-8"
       noValidate
     >
-      <h1 className="mb-1 font-serif text-2xl text-gold">لوحة الإدارة</h1>
-      <p className="mb-5 text-sm text-white/60">LUXE Administration</p>
-      <div className="mb-3">
+      <div className="pointer-events-none absolute -top-10 left-1/2 h-20 w-40 -translate-x-1/2 rounded-full bg-gold/30 blur-3xl" />
+      <div className="mb-6 text-center">
+        <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-gold-soft to-gold-deep font-serif text-2xl font-extrabold text-ink-0 shadow-[0_12px_30px_-8px_rgba(212,175,55,0.55)]">
+          L
+        </span>
+        <h1 className="mt-4 font-serif text-2xl text-white">لوحة الإدارة</h1>
+        <p className="mt-1 text-sm text-white/50">LUXE Administration</p>
+      </div>
+      <div className="mb-4">
         <label className="label">اسم المستخدم</label>
         <input
           className="input"
           value={user}
           onChange={(e) => setUser(e.target.value)}
           autoComplete="username"
+          autoFocus
         />
       </div>
-      <div className="mb-5">
+      <div className="mb-6">
         <label className="label">كلمة المرور</label>
         <input
           type="password"

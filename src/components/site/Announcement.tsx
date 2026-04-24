@@ -7,15 +7,14 @@ export function Announcement() {
     "💎 كولكشن جديدة كل أسبوع",
   ];
   return (
-    <div className="overflow-hidden bg-gradient-to-l from-plum via-plum-deep to-plum py-2 text-[12px] text-gold-soft ring-1 ring-inset ring-white/5">
-      <div className="relative flex animate-[scroll_30s_linear_infinite] gap-10 whitespace-nowrap px-6">
+    <div className="overflow-hidden bg-gradient-to-l from-plum-deep via-plum to-plum-deep py-2 text-[11px] tracking-wide text-gold-soft ring-1 ring-inset ring-white/5 sm:text-[12px]">
+      <div className="flex animate-marquee gap-10 whitespace-nowrap px-6">
         {[...messages, ...messages].map((m, i) => (
-          <span key={i} className="inline-block tracking-wide">
+          <span key={i} className="inline-block">
             {m}
           </span>
         ))}
       </div>
-      <style>{`@keyframes scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
     </div>
   );
 }

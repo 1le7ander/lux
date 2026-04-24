@@ -16,18 +16,22 @@ export function AdminShell() {
   }
 
   return (
-    <section className="container-luxe py-6">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <section className="container-luxe py-6 sm:py-8">
+      <header className="mb-6 flex flex-wrap items-center justify-between gap-3 sm:mb-8">
         <div>
-          <h1 className="font-serif text-2xl text-gold">لوحة الإدارة</h1>
-          <p className="text-sm text-white/60">LUXE admin console</p>
+          <h1 className="font-serif text-2xl text-gold sm:text-3xl">
+            لوحة الإدارة
+          </h1>
+          <p className="text-xs text-white/50 sm:text-sm">
+            LUXE admin console
+          </p>
         </div>
-        <button onClick={logout} className="btn btn-ghost">
+        <button onClick={logout} className="btn btn-ghost !px-4 !py-2 !text-xs">
           خروج
         </button>
       </header>
 
-      <nav className="mb-5 flex flex-wrap gap-2">
+      <nav className="mb-6 flex flex-nowrap gap-2 overflow-x-auto pb-1 no-scrollbar sm:flex-wrap sm:overflow-visible">
         {([
           ["dashboard", "📊 اللوحة"],
           ["orders", "📦 الطلبات"],
@@ -36,10 +40,10 @@ export function AdminShell() {
           <button
             key={id}
             onClick={() => setTab(id)}
-            className={`rounded-full px-5 py-2 text-sm ring-1 transition ${
+            className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium ring-1 transition-all duration-300 sm:px-5 ${
               tab === id
-                ? "bg-gold text-ink-0 ring-gold"
-                : "bg-white/[0.03] text-white/70 ring-white/10 hover:bg-white/[0.06]"
+                ? "bg-gradient-to-l from-gold-soft to-gold text-ink-0 ring-gold shadow-[0_10px_24px_-8px_rgba(212,175,55,0.55)]"
+                : "bg-white/[0.03] text-white/70 ring-white/10 hover:bg-white/[0.08] hover:text-white hover:ring-white/20"
             }`}
           >
             {label}
@@ -47,9 +51,11 @@ export function AdminShell() {
         ))}
       </nav>
 
-      {tab === "dashboard" && <DashboardCharts />}
-      {tab === "orders" && <OrdersTable />}
-      {tab === "products" && <ProductsTable />}
+      <div className="animate-fade-in">
+        {tab === "dashboard" && <DashboardCharts />}
+        {tab === "orders" && <OrdersTable />}
+        {tab === "products" && <ProductsTable />}
+      </div>
     </section>
   );
 }

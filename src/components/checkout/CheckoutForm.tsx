@@ -99,15 +99,21 @@ export function CheckoutForm() {
 
   if (orderId) {
     return (
-      <div className="mx-auto max-w-xl card p-8 text-center">
+      <div className="mx-auto max-w-xl card animate-pop-in p-8 text-center sm:p-10">
         <div className="mb-4 text-6xl">🎉</div>
-        <h2 className="font-serif text-2xl text-white">تم تأكيد طلبك!</h2>
+        <h2 className="font-serif text-2xl text-white sm:text-3xl">تم تأكيد طلبك!</h2>
         <p className="mt-2 text-white/60">
           رقم الطلب: <span className="font-mono text-gold">{orderId}</span>
         </p>
-        <div className="mt-6 flex justify-center gap-3">
+        <p className="mt-3 text-sm text-white/50">
+          سنتواصل معك قريباً عبر الهاتف لتأكيد التوصيل.
+        </p>
+        <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
           <Link href="/" className="btn btn-primary">
-            العودة للتسوق
+            العودة للرئيسية
+          </Link>
+          <Link href="/shop" className="btn btn-ghost">
+            متابعة التسوق
           </Link>
         </div>
       </div>
@@ -116,7 +122,7 @@ export function CheckoutForm() {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-xl card p-8 text-center">
+      <div className="mx-auto max-w-xl card p-8 text-center sm:p-10">
         <div className="mb-4 text-5xl opacity-40">🛒</div>
         <p className="text-white/70">سلتك فارغة — أضف منتجات للمتابعة.</p>
         <Link href="/shop" className="btn btn-primary mt-6">
@@ -127,8 +133,8 @@ export function CheckoutForm() {
   }
 
   return (
-    <form onSubmit={submit} className="grid gap-6 md:grid-cols-[1fr_360px]" noValidate>
-      <div className="space-y-3 card p-5">
+    <form onSubmit={submit} className="grid gap-6 lg:grid-cols-[1fr_380px]" noValidate>
+      <div className="space-y-4 card p-5 sm:p-6">
         <h3 className="font-serif text-lg text-white">معلومات التوصيل</h3>
         <div>
           <label className="label">الاسم الكامل</label>
@@ -188,8 +194,8 @@ export function CheckoutForm() {
         </div>
       </div>
 
-      <aside className="card p-5">
-        <h3 className="mb-3 font-serif text-lg text-white">ملخّص الطلب</h3>
+      <aside className="card h-fit p-5 sm:p-6 lg:sticky lg:top-24">
+        <h3 className="mb-4 font-serif text-lg text-white">ملخّص الطلب</h3>
         <ul className="space-y-3">
           {items.map((l) => (
             <li key={l.id} className="flex items-center gap-3">
