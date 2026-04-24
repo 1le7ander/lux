@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const order = parsed.data;
+  const order = { ...parsed.data, status: "new" as const };
 
   if (!env.APPS_SCRIPT_URL) {
     // Local dev: accept but don't forward
