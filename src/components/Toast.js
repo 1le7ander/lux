@@ -55,9 +55,22 @@ export function showToast(message, type = 'info', duration) {
   // Auto dismiss
   let timer = setTimeout(() => dismiss(toast), ms);
 
-  // Pause on hover
-  toast.addEventListener('mouseenter', () => clearTimeout(timer));
+  // Pause on hover — freeze progress bar and restart on leave
+  toast.addEventListener('mouseenter', () => {
+    clearTimeout(timer);
+    const bar = toast.querySelector('.toast__progress');
+    if (bar) {
+      const pct = bar.getBoundingClientRect().width / bar.parentElement.getBoundingClientRect().width * 100;
+      bar.style.transition = 'none';
+      bar.style.width = pct + '%';
+    }
+  });
   toast.addEventListener('mouseleave', () => {
+    const bar = toast.querySelector('.toast__progress');
+    if (bar) {
+      bar.style.transition = 'width 1500ms linear';
+      bar.style.width = '0%';
+    }
     timer = setTimeout(() => dismiss(toast), 1500);
   });
 }
