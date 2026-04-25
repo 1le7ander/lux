@@ -53,12 +53,12 @@ export function showToast(message, type = 'info', duration) {
   toast.querySelector('.toast__close')?.addEventListener('click', () => dismiss(toast));
 
   // Auto dismiss
-  const timer = setTimeout(() => dismiss(toast), ms);
+  let timer = setTimeout(() => dismiss(toast), ms);
 
   // Pause on hover
   toast.addEventListener('mouseenter', () => clearTimeout(timer));
   toast.addEventListener('mouseleave', () => {
-    setTimeout(() => dismiss(toast), 1500);
+    timer = setTimeout(() => dismiss(toast), 1500);
   });
 }
 

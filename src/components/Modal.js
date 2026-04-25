@@ -41,7 +41,7 @@ export function openModal({ title = '', body, footer = '', className = '' }) {
   });
 
   overlay.addEventListener('click', handleOverlayClick);
-  modal.querySelector('.js-modal-close')?.addEventListener('click', closeModal);
+  modal.querySelectorAll('.js-modal-close').forEach((btn) => btn.addEventListener('click', closeModal));
   document.addEventListener('keydown', handleEscape);
   document.body.style.overflow = 'hidden';
 }
