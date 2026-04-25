@@ -1,11 +1,25 @@
 /* ═══════════════════════════════════════════════════════════
-   Footer
+   Footer — Enhanced with gold accent lines & modern layout
    ═══════════════════════════════════════════════════════════ */
 
 .footer {
   padding-block: var(--space-16) var(--space-8);
-  border-top: 1px solid rgba(168, 85, 247, 0.08);
+  border-top: 1px solid rgba(212, 175, 55, 0.08);
   background: var(--bg-void);
+  position: relative;
+}
+
+/* Decorative top line */
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(200px, 30%);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-base), transparent);
+  opacity: 0.4;
 }
 
 .footer__grid {
@@ -20,6 +34,10 @@
   font-size: var(--text-h2);
   font-weight: 800;
   margin-bottom: var(--space-4);
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-base));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .footer__brand-desc {
@@ -39,7 +57,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 1px solid rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,10 +67,11 @@
 }
 
 .footer__social-link:hover {
-  border-color: var(--purple-neon);
-  color: var(--purple-glow);
-  background: rgba(168, 85, 247, 0.1);
+  border-color: var(--gold-base);
+  color: var(--gold-base);
+  background: rgba(212, 175, 55, 0.06);
   transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15);
 }
 
 .footer__heading {
@@ -61,6 +80,7 @@
   font-weight: 700;
   margin-bottom: var(--space-5);
   color: var(--text-hero);
+  letter-spacing: var(--tracking-wide);
 }
 
 .footer__links {
@@ -72,16 +92,34 @@
 .footer__link {
   font-size: var(--text-sm);
   color: var(--text-secondary);
-  transition: color var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-fast) var(--ease-out);
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+}
+
+.footer__link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--gold-base);
+  transition: width var(--duration-normal) var(--ease-out);
 }
 
 .footer__link:hover {
-  color: var(--purple-glow);
+  color: var(--gold-base);
+}
+
+.footer__link:hover::after {
+  width: 100%;
 }
 
 .footer__bottom {
   padding-top: var(--space-8);
-  border-top: 1px solid rgba(168, 85, 247, 0.06);
+  border-top: 1px solid rgba(168, 85, 247, 0.05);
   display: flex;
   align-items: center;
   justify-content: space-between;

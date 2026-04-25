@@ -18,9 +18,11 @@ export default function HomePage() {
   const html = `
     <div class="page">
       ${heroSection()}
+      ${marqueeSection()}
       ${categoriesSection(categories)}
       ${featuredSection(featured)}
       ${activeOffer ? offerSection(activeOffer) : ''}
+      ${statsSection()}
       ${featuresSection()}
     </div>
   `;
@@ -203,6 +205,39 @@ function featuresSection() {
               <div class="feature-card__icon">${f.icon}</div>
               <h3 class="feature-card__title">${f.title}</h3>
               <p class="feature-card__text">${f.text}</p>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function marqueeSection() {
+  const words = ['LUXE', '·', 'أزياء فاخرة', '·', 'FASHION', '·', 'أناقة', '·', 'ELEGANCE', '·', 'تصاميم عصرية', '·', 'STYLE', '·'];
+  const track = words.concat(words).map((w) => `<span class="marquee__word">${w}</span>`).join('');
+  return `
+    <section class="marquee-section">
+      <div class="marquee__track">${track}</div>
+    </section>
+  `;
+}
+
+function statsSection() {
+  const stats = [
+    { value: '10K+', label: 'عميل سعيد' },
+    { value: '500+', label: 'منتج فاخر' },
+    { value: '58', label: 'ولاية توصيل' },
+    { value: '24/7', label: 'دعم العملاء' },
+  ];
+  return `
+    <section class="section stats-section reveal">
+      <div class="container">
+        <div class="stats-row">
+          ${stats.map((s) => `
+            <div class="stats-item">
+              <span class="stats-item__value gold-text">${s.value}</span>
+              <span class="stats-item__label">${s.label}</span>
             </div>
           `).join('')}
         </div>

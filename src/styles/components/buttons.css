@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   Button System
+   Button System — Enhanced with luxury micro-interactions
    ═══════════════════════════════════════════════════════════ */
 
 .btn {
@@ -30,7 +30,7 @@
   border-radius: inherit;
   background: radial-gradient(
     circle at var(--rx, 50%) var(--ry, 50%),
-    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.25) 0%,
     transparent 50%
   );
   opacity: 0;
@@ -39,7 +39,7 @@
 }
 
 .btn:active::after { opacity: 1; transition: opacity 0s; }
-.btn:active { transform: scale(0.96); }
+.btn:active { transform: scale(0.97); }
 
 /* Primary — Purple */
 .btn--primary {
@@ -50,7 +50,7 @@
 
 .btn--primary:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 12px 40px rgba(168, 85, 247, 0.5), 0 0 80px rgba(168, 85, 247, 0.2);
+  box-shadow: 0 12px 40px rgba(168, 85, 247, 0.45), 0 0 60px rgba(168, 85, 247, 0.15);
 }
 
 /* Gold */
@@ -62,22 +62,22 @@
 }
 
 .btn--gold:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 12px 40px rgba(212, 175, 55, 0.5), 0 0 80px rgba(212, 175, 55, 0.2);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(212, 175, 55, 0.45), 0 0 60px rgba(212, 175, 55, 0.15);
 }
 
 /* Ghost — Outlined */
 .btn--ghost {
   background: transparent;
-  border: 1px solid var(--glass-border-color);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--text-primary);
   backdrop-filter: blur(8px);
 }
 
 .btn--ghost:hover {
-  background: rgba(168, 85, 247, 0.1);
-  border-color: var(--purple-neon);
-  color: var(--purple-glow);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--text-hero);
   transform: translateY(-2px);
 }
 
@@ -112,7 +112,7 @@
 
 /* Large */
 .btn--lg {
-  padding: 18px 36px;
+  padding: 18px 40px;
   min-height: 56px;
   font-size: var(--text-body-lg);
 }
