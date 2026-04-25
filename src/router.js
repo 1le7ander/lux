@@ -7,6 +7,7 @@ import { $, setHTML } from './utils/dom.js';
 const routes = new Map();
 let _currentPage = null; // eslint-disable-line no-unused-vars
 let _currentCleanup = null;
+let _navId = 0;
 
 /**
  * Register a route.
@@ -44,6 +45,9 @@ async function handleRoute() {
     _currentCleanup = null;
   }
 
+  // Track navigation to detect stale handlers
+  const thisNav = ++_navId;
+
   // Match route
   const { handler, params } = matchRoute(hash);
   if (!handler) {
@@ -68,6 +72,10 @@ async function handleRoute() {
 
   try {
     const result = await handler(params);
+
+    // If another navigation occurred while awaiting, discard this result
+    if (thisNav !== _navId) return;
+
     setHTML(app, result.html);
 
     // Scroll to top

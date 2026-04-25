@@ -2,7 +2,7 @@
  * Announcement bar — marquee ticker.
  */
 
-import { $ } from '../utils/dom.js';
+import { $, esc } from '../utils/dom.js';
 import { getState } from '../state.js';
 
 export function renderAnnouncementBar() {
@@ -13,7 +13,7 @@ export function renderAnnouncementBar() {
   const text = settings.announcement || '🎉 شحن مجاني للطلبات فوق 15,000 د.ج';
 
   const items = [
-    `✨ ${text}`,
+    `✨ ${esc(text)}`,
     '🚚 توصيل لكل الولايات 58',
     '💎 جودة عالمية مضمونة',
     '🔒 الدفع عند الاستلام',
