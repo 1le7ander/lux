@@ -1,0 +1,156 @@
+/* ═══════════════════════════════════════════════════════════
+   Button System
+   ═══════════════════════════════════════════════════════════ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 14px 28px;
+  min-height: 48px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: var(--tracking-wide);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  position: relative;
+  overflow: hidden;
+  will-change: transform;
+  white-space: nowrap;
+  border: none;
+}
+
+/* Ripple effect */
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at var(--rx, 50%) var(--ry, 50%),
+    rgba(255, 255, 255, 0.3) 0%,
+    transparent 50%
+  );
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+
+.btn:active::after { opacity: 1; transition: opacity 0s; }
+.btn:active { transform: scale(0.96); }
+
+/* Primary — Purple */
+.btn--primary {
+  background: linear-gradient(135deg, var(--purple-neon), var(--purple-soft));
+  color: #fff;
+  box-shadow: var(--glow-purple-sm);
+}
+
+.btn--primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(168, 85, 247, 0.5), 0 0 80px rgba(168, 85, 247, 0.2);
+}
+
+/* Gold */
+.btn--gold {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-base), var(--gold-dark));
+  color: #1a0030;
+  box-shadow: var(--glow-gold-sm);
+  font-weight: 700;
+}
+
+.btn--gold:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(212, 175, 55, 0.5), 0 0 80px rgba(212, 175, 55, 0.2);
+}
+
+/* Ghost — Outlined */
+.btn--ghost {
+  background: transparent;
+  border: 1px solid var(--glass-border-color);
+  color: var(--text-primary);
+  backdrop-filter: blur(8px);
+}
+
+.btn--ghost:hover {
+  background: rgba(168, 85, 247, 0.1);
+  border-color: var(--purple-neon);
+  color: var(--purple-glow);
+  transform: translateY(-2px);
+}
+
+/* WhatsApp */
+.btn--whatsapp {
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  color: #fff;
+}
+
+.btn--whatsapp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(37, 211, 102, 0.4);
+}
+
+/* Danger */
+.btn--danger {
+  background: linear-gradient(135deg, var(--danger), #dc2626);
+  color: #fff;
+}
+
+.btn--danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(239, 68, 68, 0.4);
+}
+
+/* Small */
+.btn--sm {
+  padding: 8px 18px;
+  min-height: 36px;
+  font-size: var(--text-sm);
+}
+
+/* Large */
+.btn--lg {
+  padding: 18px 36px;
+  min-height: 56px;
+  font-size: var(--text-body-lg);
+}
+
+/* Icon button */
+.btn--icon {
+  width: 44px;
+  height: 44px;
+  min-height: unset;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.btn--icon-sm {
+  width: 36px;
+  height: 36px;
+  min-height: unset;
+  padding: 0;
+  border-radius: 50%;
+}
+
+/* Full width */
+.btn--full {
+  width: 100%;
+}
+
+/* Loading state */
+.btn.is-loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.btn.is-loading::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}

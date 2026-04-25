@@ -1,0 +1,153 @@
+/* ═══════════════════════════════════════════════════════════
+   LUXE Design Tokens — "Midnight Luxe"
+   The single source of truth for all visual values.
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Backgrounds ─────────────────────────────────── */
+  --bg-void: #050008;
+  --bg-primary: #07000f;
+  --bg-elevated: #0c0018;
+  --bg-card: rgba(15, 0, 30, 0.7);
+  --bg-input: rgba(20, 0, 40, 0.5);
+
+  /* ── Purple Accent ───────────────────────────────── */
+  --purple-900: #14002b;
+  --purple-800: #1e0040;
+  --purple-700: #5b21b6;
+  --purple-600: #7c3aed;
+  --purple-500: #8b5cf6;
+  --purple-400: #a78bfa;
+  --purple-300: #c4b5fd;
+  --purple-neon: #a855f7;
+  --purple-glow: #c084fc;
+  --purple-soft: #7c3aed;
+
+  /* ── Metallic Gold ───────────────────────────────── */
+  --gold-dark: #8b6914;
+  --gold-base: #d4af37;
+  --gold-light: #f0d060;
+  --gold-pale: #fef3c7;
+
+  /* ── Text Hierarchy ──────────────────────────────── */
+  --text-hero: #ffffff;
+  --text-primary: #f0eaf8;
+  --text-secondary: #b8a5cc;
+  --text-muted: #6b5880;
+  --text-disabled: #3d2e52;
+
+  /* ── Semantic Colors ─────────────────────────────── */
+  --success: #10b981;
+  --success-soft: rgba(16, 185, 129, 0.15);
+  --danger: #ef4444;
+  --danger-soft: rgba(239, 68, 68, 0.15);
+  --warning: #f59e0b;
+  --warning-soft: rgba(245, 158, 11, 0.15);
+  --info: #6366f1;
+  --info-soft: rgba(99, 102, 241, 0.15);
+
+  /* ── Glass / Frost ───────────────────────────────── */
+  --glass-bg: rgba(12, 0, 24, 0.6);
+  --glass-bg-heavy: rgba(12, 0, 24, 0.85);
+  --glass-border: 1px solid rgba(168, 85, 247, 0.12);
+  --glass-border-color: rgba(168, 85, 247, 0.12);
+  --glass-blur: 24px;
+  --glass-radius: 20px;
+  --glass-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(168, 85, 247, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  /* ── Shadows ─────────────────────────────────────── */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.6);
+
+  /* ── Glow Effects ────────────────────────────────── */
+  --glow-purple-sm: 0 0 12px rgba(168, 85, 247, 0.25);
+  --glow-purple: 0 0 24px rgba(168, 85, 247, 0.4), 0 0 64px rgba(168, 85, 247, 0.15);
+  --glow-purple-lg: 0 0 40px rgba(168, 85, 247, 0.5), 0 0 100px rgba(168, 85, 247, 0.2);
+  --glow-gold: 0 0 24px rgba(212, 175, 55, 0.4), 0 0 64px rgba(212, 175, 55, 0.15);
+  --glow-gold-sm: 0 0 10px rgba(212, 175, 55, 0.3);
+
+  /* ── Typography ──────────────────────────────────── */
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-arabic: 'Noto Sans Arabic', 'Inter', system-ui, sans-serif;
+
+  --text-hero-size: clamp(3rem, 8vw, 5.5rem);
+  --text-display: clamp(2.25rem, 5vw, 3.75rem);
+  --text-h1: clamp(1.875rem, 4vw, 3rem);
+  --text-h2: clamp(1.5rem, 3vw, 2.25rem);
+  --text-h3: clamp(1.25rem, 2.5vw, 1.75rem);
+  --text-body-lg: 1.125rem;
+  --text-body: 1rem;
+  --text-sm: 0.875rem;
+  --text-xs: 0.75rem;
+  --text-xxs: 0.6875rem;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-normal: 1.7;
+  --leading-relaxed: 1.85;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.12em;
+  --tracking-widest: 0.25em;
+
+  /* ── Spacing (8px base) ──────────────────────────── */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+  --space-10: 4rem;
+  --space-12: 5rem;
+  --space-16: 7rem;
+  --space-20: 9rem;
+  --space-section: clamp(5rem, 10vw, 9rem);
+
+  /* ── Border Radius ───────────────────────────────── */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 36px;
+  --radius-full: 999px;
+
+  /* ── Easing ──────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Durations ───────────────────────────────────── */
+  --duration-fast: 200ms;
+  --duration-normal: 400ms;
+  --duration-slow: 600ms;
+  --duration-slower: 800ms;
+  --duration-slowest: 1200ms;
+
+  /* ── Layout ──────────────────────────────────────── */
+  --container-max: 1320px;
+  --container-padding: clamp(1rem, 3vw, 2rem);
+  --header-height: 72px;
+  --header-height-scrolled: 56px;
+  --announcement-height: 36px;
+
+  /* ── Z-Index Scale ───────────────────────────────── */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-header: 500;
+  --z-drawer: 600;
+  --z-modal: 700;
+  --z-toast: 800;
+  --z-preloader: 900;
+}

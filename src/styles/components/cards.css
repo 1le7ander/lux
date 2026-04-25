@@ -1,0 +1,244 @@
+/* ═══════════════════════════════════════════════════════════
+   Card Components — Products, Categories, KPIs
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Product Card ──────────────────────────────────── */
+.p-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--glass-bg);
+  border: 1px solid rgba(168, 85, 247, 0.12);
+  transition: all var(--duration-normal) var(--ease-out);
+  cursor: pointer;
+  will-change: transform;
+  display: flex;
+  flex-direction: column;
+}
+
+.p-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(168, 85, 247, 0.4);
+  box-shadow: 0 20px 60px rgba(168, 85, 247, 0.2);
+}
+
+.p-card__image {
+  aspect-ratio: 4 / 5;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--purple-900), var(--bg-elevated));
+}
+
+.p-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all var(--duration-slow) var(--ease-out);
+}
+
+.p-card__image img:nth-child(2) {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.p-card:hover .p-card__image img:first-child { transform: scale(1.06); }
+.p-card:hover .p-card__image img:nth-child(2) { opacity: 1; }
+
+.p-card__badges {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 2;
+}
+
+.p-card__quick {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  opacity: 0;
+  transition: all var(--duration-normal) var(--ease-out);
+  z-index: 2;
+}
+
+.p-card:hover .p-card__quick {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.p-card__body {
+  padding: var(--space-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.p-card__category {
+  font-size: var(--text-xxs);
+  color: var(--purple-glow);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+}
+
+.p-card__name {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  color: var(--text-hero);
+}
+
+.p-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+
+.p-card__price-current {
+  font-size: var(--text-body-lg);
+  font-weight: 800;
+  color: var(--gold-base);
+}
+
+.p-card__price-old {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.p-card__discount {
+  font-size: var(--text-xxs);
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* ── Category Card ─────────────────────────────────── */
+.cat-card {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(168, 85, 247, 0.15);
+  transition: all 0.5s var(--ease-out);
+  will-change: transform;
+}
+
+.cat-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(168, 85, 247, 0.25);
+  border-color: var(--purple-neon);
+}
+
+.cat-card__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+
+.cat-card:hover .cat-card__bg { transform: scale(1.08); }
+
+.cat-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 30%, rgba(7, 0, 15, 0.92) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: var(--space-6);
+  z-index: 2;
+}
+
+.cat-card__icon { font-size: 40px; margin-bottom: var(--space-2); }
+
+.cat-card__name {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--text-hero);
+}
+
+.cat-card__count {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.cat-card__arrow {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(7, 0, 15, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-normal) var(--ease-out);
+  opacity: 0;
+  color: var(--text-primary);
+}
+
+.cat-card:hover .cat-card__arrow {
+  opacity: 1;
+  transform: translateX(-4px);
+}
+
+/* ── KPI Card (Admin) ──────────────────────────────── */
+.kpi-card {
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  border: var(--glass-border);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.kpi-card:hover {
+  border-color: rgba(168, 85, 247, 0.3);
+  transform: translateY(-3px);
+}
+
+.kpi-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.kpi-card__label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.kpi-card__value {
+  font-size: var(--text-h2);
+  font-weight: 800;
+  font-family: var(--font-display);
+  color: var(--text-hero);
+}
+
+.kpi-card__change {
+  font-size: var(--text-xs);
+  margin-top: var(--space-1);
+}

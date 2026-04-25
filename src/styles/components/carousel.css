@@ -1,0 +1,93 @@
+/* ═══════════════════════════════════════════════════════════
+   Carousel / Slider
+   ═══════════════════════════════════════════════════════════ */
+
+.carousel {
+  position: relative;
+}
+
+.carousel__track {
+  display: flex;
+  gap: var(--space-5);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding: var(--space-1);
+  -webkit-overflow-scrolling: touch;
+}
+
+.carousel__track::-webkit-scrollbar { display: none; }
+
+.carousel__track > * {
+  scroll-snap-align: start;
+  flex: 0 0 calc(25% - 15px);
+  min-width: 260px;
+}
+
+.carousel__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(12, 0, 24, 0.9);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  transition: all var(--duration-normal) var(--ease-out);
+  box-shadow: var(--glass-shadow);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.carousel__nav:hover {
+  background: var(--purple-soft);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.carousel__nav--prev { right: -24px; }
+.carousel__nav--next { left: -24px; }
+
+.carousel__dots {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+  margin-top: var(--space-6);
+}
+
+.carousel__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(168, 85, 247, 0.2);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  border: none;
+  padding: 0;
+}
+
+.carousel__dot.is-active {
+  width: 28px;
+  border-radius: var(--radius-full);
+  background: var(--purple-neon);
+  box-shadow: var(--glow-purple-sm);
+}
+
+@media (max-width: 1024px) {
+  .carousel__track > * {
+    flex: 0 0 calc(33.33% - 14px);
+  }
+}
+
+@media (max-width: 768px) {
+  .carousel__track > * {
+    flex: 0 0 calc(50% - 10px);
+    min-width: 220px;
+  }
+  .carousel__nav { display: none; }
+}
