@@ -58,7 +58,7 @@ export function initWilayaSelect(container, onChange) {
   const searchInput = container.querySelector('.js-wilaya-search');
   const hiddenInput = container.querySelector('[name="wilaya"]');
   const dropdown = container.querySelector('#wilayaDropdown');
-  if (!searchInput || !dropdown) return;
+  if (!searchInput || !dropdown) return () => {};
 
   const doSearch = debounce((query) => {
     const results = searchWilayas(query);
@@ -87,9 +87,14 @@ export function initWilayaSelect(container, onChange) {
     if (onChange && w) onChange(code, w.fee);
   });
 
-  document.addEventListener('click', (e) => {
+  const onDocClick = (e) => {
     if (!container.contains(e.target)) {
       dropdown.style.display = 'none';
     }
-  });
+  };
+  document.addEventListener('click', onDocClick);
+
+  return () => {
+    document.removeEventListener('click', onDocClick);
+  };
 }

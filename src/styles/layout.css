@@ -9,7 +9,8 @@
   padding-inline: var(--container-padding);
 }
 
-.container--narrow {
+.container--narrow,
+.container--sm {
   max-width: 900px;
 }
 

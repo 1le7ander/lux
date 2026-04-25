@@ -110,15 +110,17 @@ export default function CheckoutPage() {
       </div>
     `,
     init() {
+      const cleanups = [];
       let deliveryFee = 0;
 
       // Wilaya select
       const wilayaContainer = document.getElementById('wilayaSelect');
       if (wilayaContainer) {
-        initWilayaSelect(wilayaContainer.closest('.form-group') || wilayaContainer, (code, fee) => {
+        const wilayaCleanup = initWilayaSelect(wilayaContainer.closest('.form-group') || wilayaContainer, (code, fee) => {
           deliveryFee = fee;
           updateTotals(subtotal, fee);
         });
+        if (wilayaCleanup) cleanups.push(wilayaCleanup);
       }
 
       // Form submit
@@ -129,6 +131,8 @@ export default function CheckoutPage() {
           handleSubmit(form, subtotal, deliveryFee);
         });
       }
+
+      return () => cleanups.forEach((fn) => fn());
     },
   };
 }

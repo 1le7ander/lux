@@ -197,7 +197,7 @@
 .announcement-bar__track {
   display: flex;
   gap: var(--space-12);
-  animation: marquee 30s linear infinite;
+  animation: announcement-marquee 30s linear infinite;
   white-space: nowrap;
 }
 
@@ -212,7 +212,7 @@
   flex-shrink: 0;
 }
 
-@keyframes marquee {
+@keyframes announcement-marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(50%); }
 }
