@@ -27,13 +27,17 @@ export default function AdminOrdersPage() {
       </div>
     `,
     init() {
-      delegate(document, 'change', '.js-order-status', (_e, select) => {
+      const cleanups = [];
+
+      cleanups.push(delegate(document, 'change', '.js-order-status', (_e, select) => {
         const orderId = select.dataset.orderId;
         const newStatus = select.value;
         updateOrderStatus(orderId, newStatus);
         setHTML('#ordersTable', renderOrdersTable());
         showToast('تم تحديث حالة الطلب', 'success');
-      });
+      }));
+
+      return () => cleanups.forEach((fn) => fn());
     },
   };
 }

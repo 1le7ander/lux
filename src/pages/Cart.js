@@ -22,40 +22,42 @@ export default function CartPage() {
       </div>
     `,
     init() {
-      const unsub = subscribe(() => {
+      const cleanups = [];
+
+      cleanups.push(subscribe(() => {
         const el = $('#cartContent');
         if (el) setHTML(el, renderCartContent());
-      });
+      }));
 
       // Quantity change
-      delegate(document, 'click', '.js-cart-minus', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-cart-minus', (_e, btn) => {
         const { id, size, color } = btn.dataset;
         const item = getState().cart.find(
           (i) => i.id === id && i.size === (size ?? '') && i.color === (color ?? '')
         );
         if (item) updateCartQty(id, item.qty - 1, size ?? '', color ?? '');
-      });
+      }));
 
-      delegate(document, 'click', '.js-cart-plus', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-cart-plus', (_e, btn) => {
         const { id, size, color } = btn.dataset;
         const item = getState().cart.find(
           (i) => i.id === id && i.size === (size ?? '') && i.color === (color ?? '')
         );
         if (item) updateCartQty(id, item.qty + 1, size ?? '', color ?? '');
-      });
+      }));
 
-      delegate(document, 'click', '.js-cart-remove', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-cart-remove', (_e, btn) => {
         const { id, size, color } = btn.dataset;
         removeFromCart(id, size ?? '', color ?? '');
         showToast('تم إزالة المنتج من السلة', 'info');
-      });
+      }));
 
-      delegate(document, 'click', '#clearCartBtn', () => {
+      cleanups.push(delegate(document, 'click', '#clearCartBtn', () => {
         clearCart();
         showToast('تم تفريغ السلة', 'info');
-      });
+      }));
 
-      return () => unsub();
+      return () => cleanups.forEach((fn) => fn());
     },
   };
 }

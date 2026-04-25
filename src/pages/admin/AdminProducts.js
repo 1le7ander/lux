@@ -26,21 +26,29 @@ export default function AdminProductsPage() {
       </div>
     `,
     init() {
-      const addBtn = $('#addProductBtn');
-      if (addBtn) addBtn.addEventListener('click', () => showProductModal());
+      const cleanups = [];
 
-      delegate(document, 'click', '.js-edit-product', (_e, btn) => {
+      const addBtn = $('#addProductBtn');
+      if (addBtn) {
+        const addHandler = () => showProductModal();
+        addBtn.addEventListener('click', addHandler);
+        cleanups.push(() => addBtn.removeEventListener('click', addHandler));
+      }
+
+      cleanups.push(delegate(document, 'click', '.js-edit-product', (_e, btn) => {
         const product = getState().products.find((p) => p.id === btn.dataset.id);
         if (product) showProductModal(product);
-      });
+      }));
 
-      delegate(document, 'click', '.js-delete-product', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-delete-product', (_e, btn) => {
         if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
           deleteProduct(btn.dataset.id);
           setHTML('#productsTable', renderProductsTable());
           showToast('تم حذف المنتج', 'info');
         }
-      });
+      }));
+
+      return () => cleanups.forEach((fn) => fn());
     },
   };
 }

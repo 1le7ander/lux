@@ -25,21 +25,29 @@ export default function AdminOffersPage() {
       </div>
     `,
     init() {
-      const addBtn = $('#addOfferBtn');
-      if (addBtn) addBtn.addEventListener('click', () => showOfferModal());
+      const cleanups = [];
 
-      delegate(document, 'click', '.js-edit-offer', (_e, btn) => {
+      const addBtn = $('#addOfferBtn');
+      if (addBtn) {
+        const addHandler = () => showOfferModal();
+        addBtn.addEventListener('click', addHandler);
+        cleanups.push(() => addBtn.removeEventListener('click', addHandler));
+      }
+
+      cleanups.push(delegate(document, 'click', '.js-edit-offer', (_e, btn) => {
         const offer = getState().offers.find((o) => o.id === btn.dataset.id);
         if (offer) showOfferModal(offer);
-      });
+      }));
 
-      delegate(document, 'click', '.js-delete-offer', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-delete-offer', (_e, btn) => {
         if (confirm('هل أنت متأكد من حذف هذا العرض؟')) {
           deleteOffer(btn.dataset.id);
           setHTML('#offersTable', renderOffersTable());
           showToast('تم حذف العرض', 'info');
         }
-      });
+      }));
+
+      return () => cleanups.forEach((fn) => fn());
     },
   };
 }

@@ -28,14 +28,14 @@ export default function HomePage() {
   return {
     html,
     init() {
-      let countdownCleanup = null;
+      const cleanups = [];
 
       // Hero animation
       setTimeout(() => animateHero(), 100);
       setTimeout(() => applyScrollReveals(), 200);
 
       // Quick add to cart
-      delegate(document, 'click', '.js-quick-add', (e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-quick-add', (e, btn) => {
         e.preventDefault();
         e.stopPropagation();
         const id = btn.dataset.id;
@@ -44,19 +44,18 @@ export default function HomePage() {
           addToCart(product);
           showToast(`تمت إضافة "${product.name}" إلى السلة`, 'success');
         }
-      });
+      }));
 
       // Countdown
       if (activeOffer) {
-        countdownCleanup = startCountdown('offerCountdown');
+        const countdownCleanup = startCountdown('offerCountdown');
+        if (countdownCleanup) cleanups.push(countdownCleanup);
       }
 
       // Hero particles
       createParticles();
 
-      return () => {
-        if (countdownCleanup) countdownCleanup();
-      };
+      return () => cleanups.forEach((fn) => fn());
     },
   };
 }

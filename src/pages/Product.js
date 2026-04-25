@@ -116,57 +116,62 @@ export default function ProductPage({ id }) {
       </div>
     `,
     init() {
+      const cleanups = [];
       let selectedSize = '';
       let selectedColor = '';
       let qty = 1;
 
       // Size selection
-      delegate(document, 'click', '.js-size', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-size', (_e, btn) => {
         $$('.js-size').forEach((b) => b.classList.remove('is-active'));
         btn.classList.add('is-active');
         selectedSize = btn.dataset.size;
         const el = $('#selectedSize');
         if (el) el.textContent = selectedSize;
-      });
+      }));
 
       // Color selection
-      delegate(document, 'click', '.js-color', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-color', (_e, btn) => {
         $$('.js-color').forEach((b) => b.classList.remove('is-active'));
         btn.classList.add('is-active');
         selectedColor = btn.dataset.color;
         const el = $('#selectedColor');
         if (el) el.textContent = selectedColor;
-      });
+      }));
 
       // Quantity
-      delegate(document, 'click', '.js-qty-minus', () => {
+      cleanups.push(delegate(document, 'click', '.js-qty-minus', () => {
         qty = Math.max(1, qty - 1);
         const el = $('#qtyValue');
         if (el) el.textContent = qty;
-      });
+      }));
 
-      delegate(document, 'click', '.js-qty-plus', () => {
+      cleanups.push(delegate(document, 'click', '.js-qty-plus', () => {
         qty = Math.min(99, qty + 1);
         const el = $('#qtyValue');
         if (el) el.textContent = qty;
-      });
+      }));
 
       // Add to cart
       const addBtn = $('#addToCartBtn');
       if (addBtn) {
-        addBtn.addEventListener('click', () => {
+        const addHandler = () => {
           addToCart(product, qty, selectedSize, selectedColor);
           showToast(`تمت إضافة "${product.name}" إلى السلة`, 'success');
-        });
+        };
+        addBtn.addEventListener('click', addHandler);
+        cleanups.push(() => addBtn.removeEventListener('click', addHandler));
       }
 
       // Thumbnail click
-      delegate(document, 'click', '.product-gallery__thumb', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.product-gallery__thumb', (_e, btn) => {
         $$('.product-gallery__thumb').forEach((t) => t.classList.remove('is-active'));
         btn.classList.add('is-active');
         const img = $('#mainImage');
         if (img) img.src = btn.dataset.src;
-      });
+      }));
+
+      return () => cleanups.forEach((fn) => fn());
     },
   };
 }

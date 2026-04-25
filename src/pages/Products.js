@@ -47,30 +47,33 @@ export default function ProductsPage() {
       </div>
     `,
     init() {
+      const cleanups = [];
       let currentCat = 'all';
       let currentSort = 'featured';
 
       setTimeout(() => applyScrollReveals(), 100);
 
       // Filter by category
-      delegate(document, 'click', '.js-filter', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-filter', (_e, btn) => {
         $$('.js-filter').forEach((b) => b.classList.remove('is-active'));
         btn.classList.add('is-active');
         currentCat = btn.dataset.cat;
         updateGrid(currentCat, currentSort);
-      });
+      }));
 
       // Sort
       const sortSelect = $('#sortSelect');
       if (sortSelect) {
-        sortSelect.addEventListener('change', () => {
+        const sortHandler = () => {
           currentSort = sortSelect.value;
           updateGrid(currentCat, currentSort);
-        });
+        };
+        sortSelect.addEventListener('change', sortHandler);
+        cleanups.push(() => sortSelect.removeEventListener('change', sortHandler));
       }
 
       // Quick add
-      delegate(document, 'click', '.js-quick-add', (e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-quick-add', (e, btn) => {
         e.preventDefault();
         e.stopPropagation();
         const product = getState().products.find((p) => p.id === btn.dataset.id);
@@ -78,7 +81,9 @@ export default function ProductsPage() {
           addToCart(product);
           showToast(`تمت إضافة "${product.name}" إلى السلة`, 'success');
         }
-      });
+      }));
+
+      return () => cleanups.forEach((fn) => fn());
     },
   };
 }

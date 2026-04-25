@@ -52,9 +52,10 @@ export default function CategoryPage({ id }) {
       </div>
     `,
     init() {
+      const cleanups = [];
       setTimeout(() => applyScrollReveals(), 100);
 
-      delegate(document, 'click', '.js-quick-add', (e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-quick-add', (e, btn) => {
         e.preventDefault();
         e.stopPropagation();
         const product = getState().products.find((p) => p.id === btn.dataset.id);
@@ -62,7 +63,9 @@ export default function CategoryPage({ id }) {
           addToCart(product);
           showToast(`تمت إضافة "${product.name}" إلى السلة`, 'success');
         }
-      });
+      }));
+
+      return () => cleanups.forEach((fn) => fn());
     },
   };
 }

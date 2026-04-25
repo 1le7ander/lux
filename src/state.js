@@ -29,7 +29,11 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { ...defaultState, ...parsed };
+      return {
+        ...defaultState,
+        ...parsed,
+        admin: { ...defaultState.admin, ...(parsed.admin || {}) },
+      };
     }
   } catch {
     // corrupted storage — reset

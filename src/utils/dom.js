@@ -33,23 +33,29 @@ export function createElement(tag, attrs = {}, ...children) {
   return el;
 }
 
-/** Escape HTML to prevent XSS */
+/** Escape HTML to prevent XSS (safe for attribute contexts) */
 export function esc(str) {
-  const el = document.createElement('span');
-  el.textContent = String(str ?? '');
-  return el.innerHTML;
+  const s = String(str ?? '');
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
-/** Attach delegated event listener */
+/** Attach delegated event listener — returns cleanup function */
 export function delegate(parent, eventType, selector, handler) {
   const root = typeof parent === 'string' ? $(parent) : parent;
-  if (!root) return;
-  root.addEventListener(eventType, (e) => {
+  if (!root) return () => {};
+  const listener = (e) => {
     const target = e.target.closest(selector);
     if (target && root.contains(target)) {
       handler(e, target);
     }
-  });
+  };
+  root.addEventListener(eventType, listener);
+  return () => root.removeEventListener(eventType, listener);
 }
 
 /** Set innerHTML safely (escaping user content) */

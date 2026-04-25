@@ -24,21 +24,29 @@ export default function AdminCategoriesPage() {
       </div>
     `,
     init() {
-      const addBtn = $('#addCategoryBtn');
-      if (addBtn) addBtn.addEventListener('click', () => showCategoryModal());
+      const cleanups = [];
 
-      delegate(document, 'click', '.js-edit-cat', (_e, btn) => {
+      const addBtn = $('#addCategoryBtn');
+      if (addBtn) {
+        const addHandler = () => showCategoryModal();
+        addBtn.addEventListener('click', addHandler);
+        cleanups.push(() => addBtn.removeEventListener('click', addHandler));
+      }
+
+      cleanups.push(delegate(document, 'click', '.js-edit-cat', (_e, btn) => {
         const cat = getState().categories.find((c) => c.id === btn.dataset.id);
         if (cat) showCategoryModal(cat);
-      });
+      }));
 
-      delegate(document, 'click', '.js-delete-cat', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-delete-cat', (_e, btn) => {
         if (confirm('هل أنت متأكد من حذف هذا التصنيف؟')) {
           deleteCategory(btn.dataset.id);
           setHTML('#categoriesTable', renderCategoriesTable());
           showToast('تم حذف التصنيف', 'info');
         }
-      });
+      }));
+
+      return () => cleanups.forEach((fn) => fn());
     },
   };
 }
