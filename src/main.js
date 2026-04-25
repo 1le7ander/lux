@@ -131,7 +131,7 @@ function adminRoute(page, currentHash) {
     html: wrapAdminLayout(page.html, currentHash),
     init() {
       initAdminLayout();
-      if (typeof page.init === 'function') page.init();
+      if (typeof page.init === 'function') return page.init();
     },
   };
 }
