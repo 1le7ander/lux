@@ -18,15 +18,15 @@ const config = Object.freeze({
   emailjsPublicKey:  import.meta.env.VITE_EMAILJS_PUBLIC_KEY  ?? '',
 
   // Google Sheets webhook
-  sheetsWebhookUrl: import.meta.env.VITE_SHEETS_WEBHOOK_URL ?? '',
+  sheetsWebhookUrl: import.meta.env.VITE_APPS_SCRIPT_URL ?? '',
 
   // Contact
   whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER ?? '213555000000',
   contactEmail:   import.meta.env.VITE_CONTACT_EMAIL   ?? '',
 
   // Admin auth (SHA-256 hashed)
-  adminUsernameHash: import.meta.env.VITE_ADMIN_USERNAME_HASH ?? '',
-  adminPasswordHash: import.meta.env.VITE_ADMIN_PASSWORD_HASH ?? '',
+  adminUsernameHash: import.meta.env.VITE_ADMIN_USER_HASH ?? '',
+  adminPasswordHash: import.meta.env.VITE_ADMIN_PASS_HASH ?? '',
 
   // Session
   sessionTTL: 30 * 60 * 1000, // 30 minutes

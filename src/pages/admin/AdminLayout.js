@@ -19,7 +19,7 @@ const ADMIN_NAV = [
 export function wrapAdminLayout(pageHTML, currentHash) {
   if (!isAdminLoggedIn()) {
     location.hash = '#admin';
-    return { html: '', init() {} };
+    return '';
   }
 
   return `

@@ -34,11 +34,12 @@ export function showToast(message, type = 'info', duration) {
   toast.innerHTML = `
     <span class="toast__icon">${ICONS[type] || 'ℹ'}</span>
     <div class="toast__content">
-      <p class="toast__message">${message}</p>
+      <p class="toast__message"></p>
     </div>
     <button class="toast__close" aria-label="إغلاق">×</button>
     <div class="toast__progress" style="width:100%; transition-duration:${ms}ms"></div>
   `;
+  toast.querySelector('.toast__message').textContent = message;
 
   container.appendChild(toast);
 
