@@ -47,7 +47,7 @@ async def update_setting(key: str, body: SettingUpdate, _admin: str = Depends(ge
     db = await get_db()
     try:
         now = datetime.now(timezone.utc).isoformat()
-        value_str = json.dumps(body.value) if not isinstance(body.value, str) else body.value
+        value_str = json.dumps(body.value)
         await db.execute(
             "INSERT INTO settings (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = ?, updated_at = ?",
             (key, value_str, now, value_str, now),

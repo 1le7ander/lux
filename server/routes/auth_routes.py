@@ -51,6 +51,14 @@ async def login(body: LoginRequest, request: Request):
         if user["locked_until"] and user["locked_until"] > now:
             raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="الحساب مقفل. حاول بعد 15 دقيقة")
 
+        if user["locked_until"] and user["locked_until"] <= now:
+            await db.execute(
+                "UPDATE admin_users SET login_attempts = 0, locked_until = NULL WHERE id = ?",
+                (user["id"],),
+            )
+            await db.commit()
+            user["login_attempts"] = 0
+
         if not verify_password(body.password, user["password_hash"]):
             attempts = (user["login_attempts"] or 0) + 1
             locked = None
