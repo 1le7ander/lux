@@ -1,13 +1,11 @@
 /**
- * Admin login page with SHA-256 auth and lockout protection.
+ * Admin login page — JWT auth via backend API.
  */
 
 import { $ } from '../../utils/dom.js';
-import { sha256 } from '../../utils/crypto.js';
-import { isLockedOut, incrementLoginAttempts, setAdminSession } from '../../state.js';
+import { setAdminSession } from '../../state.js';
 import { showToast } from '../../components/Toast.js';
-import { generateId } from '../../utils/helpers.js';
-import config from '../../config.js';
+import * as api from '../../api/client.js';
 
 export default function AdminLoginPage() {
   return {
@@ -47,11 +45,6 @@ export default function AdminLoginPage() {
         const errorEl = $('#loginError');
         const btn = $('#loginBtn');
 
-        if (isLockedOut()) {
-          showError(errorEl, 'تم تجاوز عدد المحاولات. يرجى الانتظار 15 دقيقة.');
-          return;
-        }
-
         const fd = new FormData(form);
         const username = fd.get('username')?.toString().trim() ?? '';
         const password = fd.get('password')?.toString().trim() ?? '';
@@ -67,19 +60,12 @@ export default function AdminLoginPage() {
         }
 
         try {
-          const [uHash, pHash] = await Promise.all([sha256(username), sha256(password)]);
-
-          if (uHash === config.adminUsernameHash && pHash === config.adminPasswordHash) {
-            const token = generateId('sess');
-            setAdminSession(token);
-            showToast('تم تسجيل الدخول بنجاح', 'success');
-            location.hash = '#admin/dashboard';
-          } else {
-            incrementLoginAttempts();
-            showError(errorEl, 'اسم المستخدم أو كلمة المرور غير صحيحة');
-          }
-        } catch {
-          showError(errorEl, 'حدث خطأ. يرجى المحاولة مرة أخرى.');
+          const data = await api.login(username, password);
+          setAdminSession(data.access_token);
+          showToast('تم تسجيل الدخول بنجاح', 'success');
+          location.hash = '#admin/dashboard';
+        } catch (err) {
+          showError(errorEl, err.message || 'اسم المستخدم أو كلمة المرور غير صحيحة');
         } finally {
           if (btn) {
             btn.disabled = false;

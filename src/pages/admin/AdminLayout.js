@@ -3,6 +3,7 @@
  */
 
 import { isAdminLoggedIn, clearAdminSession } from '../../state.js';
+import { logout as apiLogout } from '../../api/client.js';
 
 const ADMIN_NAV = [
   { hash: '#admin/dashboard', label: 'لوحة التحكم', icon: '📊' },
@@ -62,6 +63,7 @@ export function initAdminLayout() {
   const logoutBtn = document.getElementById('adminLogout');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
+      apiLogout();
       clearAdminSession();
       location.hash = '#admin';
     });

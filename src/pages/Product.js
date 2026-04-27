@@ -28,9 +28,12 @@ export default function ProductPage({ id }) {
     };
   }
 
-  const cat = categories.find((c) => c.id === product.category);
-  const hasDiscount = product.salePrice != null && product.salePrice < product.price;
-  const price = hasDiscount ? product.salePrice : product.price;
+  const catId = product.category_id ?? product.category;
+  const cat = categories.find((c) => c.id === catId);
+  const sp = product.sale_price ?? product.salePrice;
+  const hasDiscount = sp != null && sp < product.price;
+  const price = hasDiscount ? sp : product.price;
+  const resolveImg = (img) => (typeof img === 'string' ? img : img?.url || '');
 
   return {
     html: `
@@ -40,16 +43,18 @@ export default function ProductPage({ id }) {
             <div class="product-gallery">
               <div class="product-gallery__main">
                 ${product.images?.[0]
-                  ? `<img src="${esc(product.images[0])}" alt="${esc(product.name)}" id="mainImage">`
+                  ? `<img src="${esc(resolveImg(product.images[0]))}" alt="${esc(product.name)}" id="mainImage">`
                   : `<div class="img-placeholder" style="height:100%">📷</div>`}
               </div>
               ${product.images?.length > 1 ? `
                 <div class="product-gallery__thumbs">
-                  ${product.images.map((img, i) => `
-                    <button class="product-gallery__thumb ${i === 0 ? 'is-active' : ''}" data-src="${esc(img)}">
-                      <img src="${esc(img)}" alt="${esc(product.name)} ${i + 1}" loading="lazy">
-                    </button>
-                  `).join('')}
+                  ${product.images.map((img, i) => {
+                    const src = resolveImg(img);
+                    return `
+                    <button class="product-gallery__thumb ${i === 0 ? 'is-active' : ''}" data-src="${esc(src)}">
+                      <img src="${esc(src)}" alt="${esc(product.name)} ${i + 1}" loading="lazy">
+                    </button>`;
+                  }).join('')}
                 </div>
               ` : ''}
             </div>

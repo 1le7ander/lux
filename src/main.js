@@ -12,14 +12,37 @@ import { renderAnnouncementBar } from './components/AnnouncementBar.js';
 import { initAnimations } from './animations/init.js';
 import { wrapAdminLayout, initAdminLayout } from './pages/admin/AdminLayout.js';
 import { isAdminLoggedIn } from './state.js';
+import * as api from './api/client.js';
 
-/* ── Seed default data if empty ─────────────────── */
-function seedData() {
-  const state = getState();
-  if (!state.products.length) setProducts(defaultProducts);
-  if (!state.categories.length) setCategories(defaultCategories);
-  if (!state.offers.length) setOffers(defaultOffers);
-  if (!Object.keys(state.settings).length) setSettings(defaultSettings);
+/* ── Load data from API, fallback to seed ─────────────────── */
+async function loadData() {
+  try {
+    const [categories, products, offers, settings] = await Promise.all([
+      api.getCategories(),
+      api.getProducts({ limit: 200 }),
+      api.getOffers(),
+      api.getSettings(),
+    ]);
+    if (categories?.length) setCategories(categories);
+    else if (!getState().categories.length) setCategories(defaultCategories);
+
+    const productList = products?.items ?? products;
+    if (Array.isArray(productList) && productList.length) setProducts(productList);
+    else if (!getState().products.length) setProducts(defaultProducts);
+
+    if (Array.isArray(offers) && offers.length) setOffers(offers);
+    else if (!getState().offers.length) setOffers(defaultOffers);
+
+    if (settings && typeof settings === 'object' && Object.keys(settings).length) setSettings(settings);
+    else if (!Object.keys(getState().settings).length) setSettings(defaultSettings);
+  } catch {
+    // API unavailable — use seed/localStorage fallback
+    const state = getState();
+    if (!state.products.length) setProducts(defaultProducts);
+    if (!state.categories.length) setCategories(defaultCategories);
+    if (!state.offers.length) setOffers(defaultOffers);
+    if (!Object.keys(state.settings).length) setSettings(defaultSettings);
+  }
 }
 
 /* ── Register routes ────────────────────────────── */
@@ -147,7 +170,7 @@ function dismissPreloader() {
 
 /* ── Boot ────────────────────────────────────────── */
 async function boot() {
-  seedData();
+  await loadData();
   renderAnnouncementBar();
   renderHeader();
   renderFooter();
