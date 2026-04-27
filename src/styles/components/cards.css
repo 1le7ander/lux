@@ -1,0 +1,296 @@
+/* ═══════════════════════════════════════════════════════════
+   Card Components — Products, Categories, KPIs
+   Enhanced with Noir Fashion card patterns & modern hover fx
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Product Card ──────────────────────────────────── */
+.p-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--glass-bg);
+  border: 1px solid rgba(168, 85, 247, 0.08);
+  transition: all var(--duration-normal) var(--ease-out);
+  cursor: pointer;
+  will-change: transform;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-card);
+}
+
+.p-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  border-color: rgba(168, 85, 247, 0.3);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.p-card__image {
+  aspect-ratio: 3 / 4;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--purple-900), var(--bg-elevated));
+}
+
+.p-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all var(--duration-slower) var(--ease-out);
+}
+
+.p-card__image img:nth-child(2) {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.p-card:hover .p-card__image img:first-child { transform: scale(1.08); }
+.p-card:hover .p-card__image img:nth-child(2) { opacity: 1; }
+
+/* Image overlay gradient */
+.p-card__image::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(3, 0, 6, 0.5), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.p-card:hover .p-card__image::after {
+  opacity: 1;
+}
+
+.p-card__badges {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 2;
+}
+
+.p-card__quick {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  opacity: 0;
+  transition: all var(--duration-normal) var(--ease-out);
+  z-index: 3;
+}
+
+.p-card:hover .p-card__quick {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.p-card__body {
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.p-card__category {
+  font-size: var(--text-xxs);
+  color: var(--purple-glow);
+  font-weight: 600;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+}
+
+.p-card__name {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  color: var(--text-hero);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.p-card:hover .p-card__name {
+  color: var(--gold-light);
+}
+
+.p-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+
+.p-card__price-current {
+  font-size: var(--text-body-lg);
+  font-weight: 800;
+  color: var(--gold-base);
+}
+
+.p-card__price-old {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.p-card__discount {
+  font-size: var(--text-xxs);
+  color: var(--rose-500);
+  font-weight: 700;
+  background: rgba(232, 69, 122, 0.1);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+/* ── Category Card (Enhanced Bento) ────────────────── */
+.cat-card {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(168, 85, 247, 0.1);
+  transition: all 0.5s var(--ease-out);
+  will-change: transform;
+}
+
+.cat-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgba(168, 85, 247, 0.25);
+}
+
+.cat-card__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform var(--duration-slower) var(--ease-out);
+}
+
+.cat-card:hover .cat-card__bg { transform: scale(1.1); }
+
+.cat-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 20%, rgba(3, 0, 6, 0.88) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: var(--space-6);
+  z-index: 2;
+}
+
+.cat-card__icon { font-size: 40px; margin-bottom: var(--space-2); }
+
+.cat-card__name {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--text-hero);
+}
+
+.cat-card__count {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.cat-card__arrow {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(3, 0, 6, 0.5);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-normal) var(--ease-out);
+  opacity: 0;
+  color: var(--text-primary);
+}
+
+.cat-card:hover .cat-card__arrow {
+  opacity: 1;
+  transform: translateX(-4px);
+}
+
+/* ── KPI Card (Admin) ──────────────────────────────── */
+.kpi-card {
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  border: var(--glass-border);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  transition: all var(--duration-normal) var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--purple-neon), var(--gold-base));
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.kpi-card:hover {
+  border-color: var(--glass-border-hover);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.kpi-card:hover::before {
+  opacity: 1;
+}
+
+.kpi-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.kpi-card__label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-1);
+}
+
+.kpi-card__value {
+  font-size: var(--text-h2);
+  font-weight: 800;
+  color: var(--text-hero);
+  font-family: var(--font-display);
+}
+
+.kpi-card__trend {
+  font-size: var(--text-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
