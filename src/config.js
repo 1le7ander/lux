@@ -7,7 +7,10 @@ const config = Object.freeze({
   storeName: 'LUXE',
   storeTagline: 'أزياء فاخرة',
 
-  // Firebase
+  // Backend API URL (FastAPI server)
+  apiUrl: import.meta.env.VITE_API_URL ?? '',
+
+  // Firebase (legacy — disabled)
   firebaseApiKey:     import.meta.env.VITE_FIREBASE_API_KEY     ?? '',
   firebaseAuthDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? '',
   firebaseProjectId:  import.meta.env.VITE_FIREBASE_PROJECT_ID  ?? '',
@@ -24,7 +27,7 @@ const config = Object.freeze({
   whatsappNumber: import.meta.env.VITE_WHATSAPP_NUMBER ?? '213555000000',
   contactEmail:   import.meta.env.VITE_CONTACT_EMAIL   ?? '',
 
-  // Admin auth (SHA-256 hashed)
+  // Admin auth (SHA-256 — legacy fallback, backend JWT is primary)
   adminUsernameHash: import.meta.env.VITE_ADMIN_USER_HASH ?? '',
   adminPasswordHash: import.meta.env.VITE_ADMIN_PASS_HASH ?? '',
 
