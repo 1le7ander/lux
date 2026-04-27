@@ -1,14 +1,16 @@
 """LUXE Backend — FastAPI + SQLite + JWT Auth."""
 import logging
+import os
 import signal
 import sys
+from pathlib import Path
 
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -104,6 +106,22 @@ async def api_root():
             "health": "/health",
         },
     }
+
+
+# ── Serve Frontend (SPA) ────────────────────────────────
+DIST_DIR = Path(os.environ.get("DIST_DIR", str(Path(__file__).parent.parent / "dist")))
+
+if DIST_DIR.exists() and (DIST_DIR / "index.html").exists():
+    # Mount static assets (js, css, images) EXCEPT index.html
+    app.mount("/assets", StaticFiles(directory=str(DIST_DIR / "assets")), name="frontend-assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        """Serve frontend SPA — static files or fallback to index.html."""
+        file_path = DIST_DIR / full_path
+        if full_path and file_path.exists() and file_path.is_file():
+            return FileResponse(str(file_path))
+        return FileResponse(str(DIST_DIR / "index.html"))
 
 
 def _shutdown(signum, frame):
