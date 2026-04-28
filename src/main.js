@@ -16,33 +16,29 @@ import * as api from './api/client.js';
 
 /* ── Load data from API, fallback to seed ─────────────────── */
 async function loadData() {
-  try {
-    const [categories, products, offers, settings] = await Promise.all([
-      api.getCategories(),
-      api.getProducts({ limit: 200 }),
-      api.getOffers(),
-      api.getSettings(),
-    ]);
-    if (categories?.length) setCategories(categories);
-    else if (!getState().categories.length) setCategories(defaultCategories);
+  const [categories, products, offers, settings] = await Promise.allSettled([
+    api.getCategories(),
+    api.getProducts({ limit: 100 }),
+    api.getOffers(),
+    api.getSettings(),
+  ]);
 
-    const productList = products?.items ?? products;
-    if (Array.isArray(productList) && productList.length) setProducts(productList);
-    else if (!getState().products.length) setProducts(defaultProducts);
+  const cat = categories.status === 'fulfilled' ? categories.value : null;
+  if (cat?.length) setCategories(cat);
+  else if (!getState().categories.length) setCategories(defaultCategories);
 
-    if (Array.isArray(offers) && offers.length) setOffers(offers);
-    else if (!getState().offers.length) setOffers(defaultOffers);
+  const prod = products.status === 'fulfilled' ? products.value : null;
+  const productList = prod?.items ?? prod;
+  if (Array.isArray(productList) && productList.length) setProducts(productList);
+  else if (!getState().products.length) setProducts(defaultProducts);
 
-    if (settings && typeof settings === 'object' && Object.keys(settings).length) setSettings(settings);
-    else if (!Object.keys(getState().settings).length) setSettings(defaultSettings);
-  } catch {
-    // API unavailable — use seed/localStorage fallback
-    const state = getState();
-    if (!state.products.length) setProducts(defaultProducts);
-    if (!state.categories.length) setCategories(defaultCategories);
-    if (!state.offers.length) setOffers(defaultOffers);
-    if (!Object.keys(state.settings).length) setSettings(defaultSettings);
-  }
+  const off = offers.status === 'fulfilled' ? offers.value : null;
+  if (Array.isArray(off) && off.length) setOffers(off);
+  else if (!getState().offers.length) setOffers(defaultOffers);
+
+  const sett = settings.status === 'fulfilled' ? settings.value : null;
+  if (sett && typeof sett === 'object' && Object.keys(sett).length) setSettings(sett);
+  else if (!Object.keys(getState().settings).length) setSettings(defaultSettings);
 }
 
 /* ── Register routes ────────────────────────────── */
