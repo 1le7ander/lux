@@ -5,13 +5,13 @@
 import { getState, getCartTotal, addOrder, clearCart } from '../state.js';
 import { $, esc } from '../utils/dom.js';
 import { fmtDZD } from '../utils/format.js';
-import { generateId } from '../utils/helpers.js';
 import { validate, required, phone, minLength, showErrors, collectFormData } from '../utils/validation.js';
 import { wilayaSelectHTML, initWilayaSelect } from '../components/WilayaSelect.js';
 import { showSuccessModal } from '../components/Modal.js';
 import { launchConfetti } from '../components/Confetti.js';
 import { showToast } from '../components/Toast.js';
 import { getDeliveryFee } from '../data/wilayas.js';
+import * as api from '../api/client.js';
 
 export default function CheckoutPage() {
   const { cart } = getState();
@@ -147,7 +147,7 @@ function updateTotals(subtotal, deliveryFee) {
   if (orderTotal) orderTotal.textContent = fmtDZD(subtotal + deliveryFee);
 }
 
-function handleSubmit(form, subtotal, deliveryFee) {
+async function handleSubmit(form, subtotal, deliveryFee) {
   const data = collectFormData(form);
 
   const { valid, errors } = validate(data, {
@@ -164,36 +164,59 @@ function handleSubmit(form, subtotal, deliveryFee) {
   }
 
   const cart = getState().cart;
-  const orderId = generateId('ORD');
+  const fee = deliveryFee || getDeliveryFee(data.wilaya);
 
-  const order = {
-    id: orderId,
-    ref: orderId.slice(4, 12).toUpperCase(),
-    customer: {
-      fullName: data.fullName,
-      phone: data.phone,
-      wilaya: data.wilaya,
-      address: data.address,
-      notes: data.notes || '',
-    },
-    items: cart.map((item) => ({ ...item })),
-    subtotal,
-    deliveryFee: deliveryFee || getDeliveryFee(data.wilaya),
-    total: subtotal + (deliveryFee || getDeliveryFee(data.wilaya)),
-    status: 'pending',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+  const orderPayload = {
+    customer_name: data.fullName,
+    customer_phone: data.phone,
+    customer_wilaya: data.wilaya,
+    customer_address: data.address,
+    notes: data.notes || '',
+    items: cart.map((item) => ({
+      product_id: item.id,
+      quantity: item.qty || 1,
+      size: item.selectedSize || '',
+      color: item.selectedColor || '',
+    })),
   };
 
-  addOrder(order);
-  clearCart();
+  const submitBtn = $('#submitOrder');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'جاري الإرسال...';
+  }
 
-  launchConfetti(60);
-  showSuccessModal({
-    title: 'تم تأكيد طلبك بنجاح! 🎉',
-    message: 'سنتواصل معك قريبًا لتأكيد التفاصيل والتوصيل.',
-    ref: `رقم الطلب: #${order.ref}`,
-  });
+  try {
+    const result = await api.createOrder(orderPayload);
 
-  location.hash = '#orders';
+    // Also store locally for the customer orders page
+    addOrder({
+      id: result.id || result.ref,
+      ref: result.ref,
+      customer: { fullName: data.fullName, phone: data.phone, wilaya: data.wilaya, address: data.address },
+      items: cart.map((item) => ({ ...item })),
+      subtotal,
+      deliveryFee: fee,
+      total: subtotal + fee,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    });
+    clearCart();
+
+    launchConfetti(60);
+    showSuccessModal({
+      title: 'تم تأكيد طلبك بنجاح!',
+      message: 'سنتواصل معك قريبًا لتأكيد التفاصيل والتوصيل.',
+      ref: `رقم الطلب: #${result.ref || result.id}`,
+    });
+
+    location.hash = '#orders';
+  } catch (err) {
+    showToast(err.message || 'حدث خطأ أثناء إرسال الطلب', 'error');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = `تأكيد الطلب — ${fmtDZD(subtotal + fee)}`;
+    }
+  }
 }

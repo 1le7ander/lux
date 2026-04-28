@@ -11,15 +11,34 @@ import { renderFooter } from './components/Footer.js';
 import { renderAnnouncementBar } from './components/AnnouncementBar.js';
 import { initAnimations } from './animations/init.js';
 import { wrapAdminLayout, initAdminLayout } from './pages/admin/AdminLayout.js';
-import { isAdminLoggedIn } from './state.js';
+import { isAdminLoggedIn, clearAdminSession, setAdminSession } from './state.js';
+import * as api from './api/client.js';
 
-/* ── Seed default data if empty ─────────────────── */
-function seedData() {
-  const state = getState();
-  if (!state.products.length) setProducts(defaultProducts);
-  if (!state.categories.length) setCategories(defaultCategories);
-  if (!state.offers.length) setOffers(defaultOffers);
-  if (!Object.keys(state.settings).length) setSettings(defaultSettings);
+/* ── Load data from API, fallback to seed ─────────────────── */
+async function loadData() {
+  const [categories, products, offers, settings] = await Promise.allSettled([
+    api.getCategories(),
+    api.getProducts({ limit: 100 }),
+    api.getOffers(),
+    api.getSettings(),
+  ]);
+
+  const cat = categories.status === 'fulfilled' ? categories.value : null;
+  if (cat?.length) setCategories(cat);
+  else if (!getState().categories.length) setCategories(defaultCategories);
+
+  const prod = products.status === 'fulfilled' ? products.value : null;
+  const productList = prod?.items ?? prod;
+  if (Array.isArray(productList) && productList.length) setProducts(productList);
+  else if (!getState().products.length) setProducts(defaultProducts);
+
+  const off = offers.status === 'fulfilled' ? offers.value : null;
+  if (Array.isArray(off) && off.length) setOffers(off);
+  else if (!getState().offers.length) setOffers(defaultOffers);
+
+  const sett = settings.status === 'fulfilled' ? settings.value : null;
+  if (sett && typeof sett === 'object' && Object.keys(sett).length) setSettings(sett);
+  else if (!Object.keys(getState().settings).length) setSettings(defaultSettings);
 }
 
 /* ── Register routes ────────────────────────────── */
@@ -147,7 +166,14 @@ function dismissPreloader() {
 
 /* ── Boot ────────────────────────────────────────── */
 async function boot() {
-  seedData();
+  // Sync admin session: if API client has tokens, ensure state reflects it
+  if (api.isLoggedIn() && !isAdminLoggedIn()) {
+    setAdminSession(sessionStorage.getItem('luxe_access_token'));
+  } else if (!api.isLoggedIn() && isAdminLoggedIn()) {
+    clearAdminSession();
+  }
+
+  await loadData();
   renderAnnouncementBar();
   renderHeader();
   renderFooter();

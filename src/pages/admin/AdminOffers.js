@@ -1,14 +1,14 @@
 /**
- * Admin offers management.
+ * Admin offers management — CRUD via backend API.
  */
 
-import { getState, upsertOffer, deleteOffer } from '../../state.js';
+import { getState, setOffers } from '../../state.js';
 import { $, delegate, esc, setHTML } from '../../utils/dom.js';
 import { fmtDate } from '../../utils/format.js';
 import { openModal, closeModal } from '../../components/Modal.js';
 import { showToast } from '../../components/Toast.js';
-import { generateId } from '../../utils/helpers.js';
 import { collectFormData } from '../../utils/validation.js';
+import * as api from '../../api/client.js';
 
 export default function AdminOffersPage() {
   return {
@@ -17,7 +17,7 @@ export default function AdminOffersPage() {
         <div class="admin-page__header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3)">
           <div>
             <h1 class="admin-page__title">إدارة العروض</h1>
-            <p class="text-muted">${getState().offers.length} عرض</p>
+            <p class="text-muted" id="offersCount">${getState().offers.length} عرض</p>
           </div>
           <button class="btn btn--gold" id="addOfferBtn">+ إضافة عرض</button>
         </div>
@@ -39,17 +39,31 @@ export default function AdminOffersPage() {
         if (offer) showOfferModal(offer);
       }));
 
-      cleanups.push(delegate(document, 'click', '.js-delete-offer', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-delete-offer', async (_e, btn) => {
         if (confirm('هل أنت متأكد من حذف هذا العرض؟')) {
-          deleteOffer(btn.dataset.id);
-          setHTML('#offersTable', renderOffersTable());
-          showToast('تم حذف العرض', 'info');
+          try {
+            await api.deleteOffer(btn.dataset.id);
+            await refreshOffers();
+            showToast('تم حذف العرض', 'info');
+          } catch (err) {
+            showToast(err.message || 'فشل حذف العرض', 'error');
+          }
         }
       }));
 
       return () => cleanups.forEach((fn) => fn());
     },
   };
+}
+
+async function refreshOffers() {
+  try {
+    const offers = await api.getAdminOffers();
+    if (Array.isArray(offers)) setOffers(offers);
+  } catch { /* use cached */ }
+  setHTML('#offersTable', renderOffersTable());
+  const countEl = $('#offersCount');
+  if (countEl) countEl.textContent = `${getState().offers.length} عرض`;
 }
 
 function renderOffersTable() {
@@ -77,7 +91,7 @@ function renderOffersTable() {
               <td style="font-weight:500">${esc(o.title)}</td>
               <td class="gold-text">${o.discount}%</td>
               <td><code style="background:var(--bg-surface);padding:2px 8px;border-radius:4px">${esc(o.code || '—')}</code></td>
-              <td class="text-sm">${fmtDate(o.expiresAt)}</td>
+              <td class="text-sm">${fmtDate(o.expires_at ?? o.expiresAt)}</td>
               <td>
                 <span class="pill ${o.active ? 'pill--gold' : 'pill--sm'}">${o.active ? 'نشط' : 'معطّل'}</span>
               </td>
@@ -123,7 +137,7 @@ function showOfferModal(offer = null) {
         <div class="form-row form-row--2">
           <div class="form-group">
             <label class="form-label">تاريخ الانتهاء</label>
-            <input type="datetime-local" name="expiresAt" class="form-input" value="${isEdit && offer.expiresAt ? offer.expiresAt.slice(0, 16) : ''}" />
+            <input type="datetime-local" name="expires_at" class="form-input" value="${isEdit && (offer.expires_at ?? offer.expiresAt) ? (offer.expires_at ?? offer.expiresAt).slice(0, 16) : ''}" />
           </div>
           <div class="form-group" style="display:flex;align-items:end">
             <label class="form-label" style="display:flex;align-items:center;gap:var(--space-2);cursor:pointer">
@@ -142,7 +156,7 @@ function showOfferModal(offer = null) {
 
   const saveBtn = document.getElementById('saveOfferBtn');
   if (saveBtn) {
-    saveBtn.addEventListener('click', () => {
+    saveBtn.addEventListener('click', async () => {
       const form = document.getElementById('offerForm');
       if (!form) return;
       const data = collectFormData(form);
@@ -150,18 +164,26 @@ function showOfferModal(offer = null) {
         showToast('يرجى إدخال عنوان العرض', 'error');
         return;
       }
-      upsertOffer({
-        id: isEdit ? offer.id : generateId('offer'),
+      const payload = {
         title: data.title.trim(),
         description: data.description || '',
         discount: Number(data.discount) || 0,
         code: data.code || '',
-        expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : null,
+        expires_at: data.expires_at ? new Date(data.expires_at).toISOString() : null,
         active: form.querySelector('[name="active"]')?.checked || false,
-      });
-      closeModal();
-      setHTML('#offersTable', renderOffersTable());
-      showToast(isEdit ? 'تم تعديل العرض' : 'تم إضافة العرض', 'success');
+      };
+      try {
+        if (isEdit) {
+          await api.updateOffer(offer.id, payload);
+        } else {
+          await api.createOffer(payload);
+        }
+        closeModal();
+        await refreshOffers();
+        showToast(isEdit ? 'تم تعديل العرض' : 'تم إضافة العرض', 'success');
+      } catch (err) {
+        showToast(err.message || 'حدث خطأ', 'error');
+      }
     });
   }
 }

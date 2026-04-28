@@ -12,16 +12,19 @@ import { getState } from '../state.js';
  * @returns {string} HTML
  */
 export function productCardHTML(product) {
-  const { id, name, price, salePrice, images, category } = product;
-  const imgSrc = images?.[0] || '';
-  const imgSrc2 = images?.[1] || '';
+  const { id, name, price, images, category } = product;
+  const salePrice = product.sale_price ?? product.salePrice;
+  const catId = product.category_id ?? category;
+  const resolveImg = (img) => (typeof img === 'string' ? img : img?.url || '');
+  const imgSrc = resolveImg(images?.[0]);
+  const imgSrc2 = resolveImg(images?.[1]);
   const hasDiscount = salePrice != null && salePrice < price;
   const discountPct = hasDiscount
     ? Math.round(((price - salePrice) / price) * 100)
     : 0;
 
   const categories = getState().categories;
-  const catObj = categories.find((c) => c.id === category);
+  const catObj = categories.find((c) => c.id === catId);
   const catName = catObj?.name ?? '';
 
   return `

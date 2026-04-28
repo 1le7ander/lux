@@ -87,16 +87,18 @@ export function addToCart(product, qty = 1, size = '', color = '') {
     );
     return setState({ cart: updatedCart });
   }
+  const firstImage = product.images?.[0];
+  const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url ?? '';
   const item = {
     id: product.id,
     name: product.name,
-    price: product.salePrice ?? product.price,
+    price: product.sale_price ?? product.salePrice ?? product.price,
     originalPrice: product.price,
-    image: product.images?.[0] ?? '',
+    image: imageUrl,
     size,
     color,
     qty,
-    category: product.category ?? '',
+    category: product.category_id ?? product.category ?? '',
   };
   return setState({ cart: [..._state.cart, item] });
 }

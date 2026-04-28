@@ -1,14 +1,14 @@
 /**
- * Admin products management — CRUD.
+ * Admin products management — CRUD via backend API.
  */
 
-import { getState, upsertProduct, deleteProduct } from '../../state.js';
+import { getState, setProducts, setCategories } from '../../state.js';
 import { $, delegate, esc, setHTML } from '../../utils/dom.js';
 import { fmtDZD } from '../../utils/format.js';
 import { openModal, closeModal } from '../../components/Modal.js';
 import { showToast } from '../../components/Toast.js';
-import { generateId } from '../../utils/helpers.js';
 import { collectFormData } from '../../utils/validation.js';
+import * as api from '../../api/client.js';
 
 export default function AdminProductsPage() {
   return {
@@ -17,7 +17,7 @@ export default function AdminProductsPage() {
         <div class="admin-page__header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3)">
           <div>
             <h1 class="admin-page__title">إدارة المنتجات</h1>
-            <p class="text-muted">${getState().products.length} منتج</p>
+            <p class="text-muted" id="productsCount">${getState().products.length} منتج</p>
           </div>
           <button class="btn btn--gold" id="addProductBtn">+ إضافة منتج</button>
         </div>
@@ -40,17 +40,41 @@ export default function AdminProductsPage() {
         if (product) showProductModal(product);
       }));
 
-      cleanups.push(delegate(document, 'click', '.js-delete-product', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-delete-product', async (_e, btn) => {
         if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
-          deleteProduct(btn.dataset.id);
-          setHTML('#productsTable', renderProductsTable());
-          showToast('تم حذف المنتج', 'info');
+          try {
+            await api.deleteProduct(btn.dataset.id);
+            await refreshProducts();
+            showToast('تم حذف المنتج', 'info');
+          } catch (err) {
+            showToast(err.message || 'فشل حذف المنتج', 'error');
+          }
         }
+      }));
+
+      cleanups.push(delegate(document, 'click', '.js-upload-img', (_e, btn) => {
+        const productId = btn.dataset.id;
+        showImageUploadModal(productId);
       }));
 
       return () => cleanups.forEach((fn) => fn());
     },
   };
+}
+
+async function refreshProducts() {
+  try {
+    const [products, categories] = await Promise.all([
+      api.getProducts({ limit: 200 }),
+      api.getCategories(),
+    ]);
+    const productList = products?.items ?? products;
+    if (Array.isArray(productList)) setProducts(productList);
+    if (Array.isArray(categories)) setCategories(categories);
+  } catch { /* use cached state */ }
+  setHTML('#productsTable', renderProductsTable());
+  const countEl = $('#productsCount');
+  if (countEl) countEl.textContent = `${getState().products.length} منتج`;
 }
 
 function renderProductsTable() {
@@ -74,26 +98,30 @@ function renderProductsTable() {
         </thead>
         <tbody>
           ${products.map((p) => {
-            const cat = categories.find((c) => c.id === p.category);
+            const catId = p.category_id ?? p.category;
+            const cat = categories.find((c) => c.id === catId);
+            const imgUrl = p.images?.[0]?.url ?? p.images?.[0];
+            const salePrice = p.sale_price ?? p.salePrice;
             return `
               <tr>
                 <td>
                   <div style="display:flex;align-items:center;gap:var(--space-3)">
                     <div style="width:40px;height:40px;border-radius:var(--radius-md);overflow:hidden;background:var(--bg-surface);flex-shrink:0">
-                      ${p.images?.[0] ? `<img src="${esc(p.images[0])}" alt="" style="width:100%;height:100%;object-fit:cover">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:1.2rem">📷</div>'}
+                      ${imgUrl ? `<img src="${esc(typeof imgUrl === 'string' ? imgUrl : imgUrl)}" alt="" style="width:100%;height:100%;object-fit:cover">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:1.2rem">📷</div>'}
                     </div>
                     <span style="font-weight:500">${esc(p.name)}</span>
                   </div>
                 </td>
                 <td>${cat ? esc(cat.name) : '—'}</td>
                 <td>
-                  ${p.salePrice ? `<span style="text-decoration:line-through;color:var(--text-muted);font-size:var(--text-sm)">${fmtDZD(p.price)}</span> ` : ''}
-                  <span class="gold-text">${fmtDZD(p.salePrice ?? p.price)}</span>
+                  ${salePrice ? `<span style="text-decoration:line-through;color:var(--text-muted);font-size:var(--text-sm)">${fmtDZD(p.price)}</span> ` : ''}
+                  <span class="gold-text">${fmtDZD(salePrice ?? p.price)}</span>
                 </td>
                 <td>${p.stock ?? '—'}</td>
                 <td>${p.featured ? '⭐' : '—'}</td>
                 <td>
                   <div style="display:flex;gap:var(--space-2)">
+                    <button class="btn btn--ghost btn--sm js-upload-img" data-id="${esc(p.id)}" title="رفع صورة">📷</button>
                     <button class="btn btn--ghost btn--sm js-edit-product" data-id="${esc(p.id)}">✏️</button>
                     <button class="btn btn--ghost btn--sm js-delete-product" data-id="${esc(p.id)}" style="color:var(--danger)">🗑️</button>
                   </div>
@@ -121,9 +149,9 @@ function showProductModal(product = null) {
         </div>
         <div class="form-group">
           <label class="form-label">التصنيف</label>
-          <select name="category" class="form-input">
+          <select name="category_id" class="form-input">
             <option value="">بدون تصنيف</option>
-            ${categories.map((c) => `<option value="${esc(c.id)}" ${isEdit && product.category === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
+            ${categories.map((c) => `<option value="${esc(c.id)}" ${isEdit && (product.category_id ?? product.category) === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}
           </select>
         </div>
         <div class="form-row form-row--2">
@@ -133,7 +161,7 @@ function showProductModal(product = null) {
           </div>
           <div class="form-group">
             <label class="form-label">سعر التخفيض</label>
-            <input type="number" name="salePrice" class="form-input" value="${isEdit && product.salePrice ? product.salePrice : ''}" min="0" />
+            <input type="number" name="sale_price" class="form-input" value="${isEdit && (product.sale_price ?? product.salePrice) ? (product.sale_price ?? product.salePrice) : ''}" min="0" />
           </div>
         </div>
         <div class="form-row form-row--2">
@@ -160,10 +188,6 @@ function showProductModal(product = null) {
           <label class="form-label">الألوان (مفصولة بفاصلة)</label>
           <input type="text" name="colors" class="form-input" value="${isEdit ? (product.colors || []).join(', ') : ''}" placeholder="أسود, أبيض, ذهبي" />
         </div>
-        <div class="form-group">
-          <label class="form-label">روابط الصور (مفصولة بفاصلة)</label>
-          <textarea name="images" class="form-input form-textarea" rows="2" placeholder="https://...">${isEdit ? (product.images || []).join(', ') : ''}</textarea>
-        </div>
       </form>
     `,
     footer: `
@@ -174,7 +198,7 @@ function showProductModal(product = null) {
 
   const saveBtn = document.getElementById('saveProductBtn');
   if (saveBtn) {
-    saveBtn.addEventListener('click', () => {
+    saveBtn.addEventListener('click', async () => {
       const form = document.getElementById('productForm');
       if (!form) return;
       const data = collectFormData(form);
@@ -184,25 +208,74 @@ function showProductModal(product = null) {
         return;
       }
 
-      const newProduct = {
-        id: isEdit ? product.id : generateId('prod'),
+      const payload = {
         name: data.name.trim(),
-        category: data.category || '',
+        category_id: data.category_id || null,
         price: Number(data.price),
-        salePrice: data.salePrice ? Number(data.salePrice) : null,
+        sale_price: data.sale_price ? Number(data.sale_price) : null,
         description: data.description || '',
-        images: data.images ? data.images.split(',').map((s) => s.trim()).filter(Boolean) : [],
         sizes: data.sizes ? data.sizes.split(',').map((s) => s.trim()).filter(Boolean) : [],
         colors: data.colors ? data.colors.split(',').map((s) => s.trim()).filter(Boolean) : [],
         stock: data.stock ? Number(data.stock) : 0,
         featured: form.querySelector('[name="featured"]')?.checked || false,
-        createdAt: isEdit ? product.createdAt : new Date().toISOString(),
       };
 
-      upsertProduct(newProduct);
-      closeModal();
-      setHTML('#productsTable', renderProductsTable());
-      showToast(isEdit ? 'تم تعديل المنتج' : 'تم إضافة المنتج', 'success');
+      try {
+        if (isEdit) {
+          await api.updateProduct(product.id, payload);
+        } else {
+          await api.createProduct(payload);
+        }
+        closeModal();
+        await refreshProducts();
+        showToast(isEdit ? 'تم تعديل المنتج' : 'تم إضافة المنتج', 'success');
+      } catch (err) {
+        showToast(err.message || 'حدث خطأ', 'error');
+      }
+    });
+  }
+}
+
+function showImageUploadModal(productId) {
+  openModal({
+    title: 'رفع صورة المنتج',
+    body: `
+      <form id="imageUploadForm">
+        <div class="form-group">
+          <label class="form-label">اختر صورة (JPEG, PNG, WebP — حد 5MB)</label>
+          <input type="file" name="image" class="form-input" accept="image/jpeg,image/png,image/webp,image/gif" required />
+        </div>
+      </form>
+    `,
+    footer: `
+      <button class="btn btn--ghost js-modal-close">إلغاء</button>
+      <button class="btn btn--gold" id="uploadImageBtn">رفع الصورة</button>
+    `,
+  });
+
+  const uploadBtn = document.getElementById('uploadImageBtn');
+  if (uploadBtn) {
+    uploadBtn.addEventListener('click', async () => {
+      const form = document.getElementById('imageUploadForm');
+      const fileInput = form?.querySelector('[name="image"]');
+      const file = fileInput?.files?.[0];
+      if (!file) {
+        showToast('يرجى اختيار صورة', 'error');
+        return;
+      }
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = 'جاري الرفع...';
+      try {
+        await api.uploadProductImage(productId, file);
+        closeModal();
+        await refreshProducts();
+        showToast('تم رفع الصورة بنجاح', 'success');
+      } catch (err) {
+        showToast(err.message || 'فشل رفع الصورة', 'error');
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'رفع الصورة';
+      }
     });
   }
 }

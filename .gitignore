@@ -9,3 +9,14 @@ Thumbs.db
 index.html.bak
 ELITE_PROMPT.md
 ELITE_PLAN.md
+.vercel
+.env*.local
+
+# Backend
+server/__pycache__/
+server/**/__pycache__/
+*.pyc
+*.db
+/data/
+test-plan.md
+test-report.md

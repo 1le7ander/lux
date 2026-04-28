@@ -1,13 +1,13 @@
 /**
- * Admin categories management.
+ * Admin categories management — CRUD via backend API.
  */
 
-import { getState, upsertCategory, deleteCategory } from '../../state.js';
+import { getState, setCategories } from '../../state.js';
 import { $, delegate, esc, setHTML } from '../../utils/dom.js';
 import { openModal, closeModal } from '../../components/Modal.js';
 import { showToast } from '../../components/Toast.js';
-import { generateId } from '../../utils/helpers.js';
 import { collectFormData } from '../../utils/validation.js';
+import * as api from '../../api/client.js';
 
 export default function AdminCategoriesPage() {
   return {
@@ -16,7 +16,7 @@ export default function AdminCategoriesPage() {
         <div class="admin-page__header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3)">
           <div>
             <h1 class="admin-page__title">إدارة التصنيفات</h1>
-            <p class="text-muted">${getState().categories.length} تصنيف</p>
+            <p class="text-muted" id="categoriesCount">${getState().categories.length} تصنيف</p>
           </div>
           <button class="btn btn--gold" id="addCategoryBtn">+ إضافة تصنيف</button>
         </div>
@@ -38,17 +38,31 @@ export default function AdminCategoriesPage() {
         if (cat) showCategoryModal(cat);
       }));
 
-      cleanups.push(delegate(document, 'click', '.js-delete-cat', (_e, btn) => {
+      cleanups.push(delegate(document, 'click', '.js-delete-cat', async (_e, btn) => {
         if (confirm('هل أنت متأكد من حذف هذا التصنيف؟')) {
-          deleteCategory(btn.dataset.id);
-          setHTML('#categoriesTable', renderCategoriesTable());
-          showToast('تم حذف التصنيف', 'info');
+          try {
+            await api.deleteCategory(btn.dataset.id);
+            await refreshCategories();
+            showToast('تم حذف التصنيف', 'info');
+          } catch (err) {
+            showToast(err.message || 'فشل حذف التصنيف', 'error');
+          }
         }
       }));
 
       return () => cleanups.forEach((fn) => fn());
     },
   };
+}
+
+async function refreshCategories() {
+  try {
+    const categories = await api.getCategories();
+    if (Array.isArray(categories)) setCategories(categories);
+  } catch { /* use cached */ }
+  setHTML('#categoriesTable', renderCategoriesTable());
+  const countEl = $('#categoriesCount');
+  if (countEl) countEl.textContent = `${getState().categories.length} تصنيف`;
 }
 
 function renderCategoriesTable() {
@@ -71,13 +85,13 @@ function renderCategoriesTable() {
         </thead>
         <tbody>
           ${categories.map((c) => {
-            const count = products.filter((p) => p.category === c.id).length;
+            const count = products.filter((p) => (p.category_id ?? p.category) === c.id).length;
             return `
               <tr>
                 <td style="font-size:1.5rem">${c.icon || '📂'}</td>
                 <td style="font-weight:500">${esc(c.name)}</td>
                 <td>${count}</td>
-                <td>${c.order ?? '—'}</td>
+                <td>${c.sort_order ?? c.order ?? '—'}</td>
                 <td>
                   <div style="display:flex;gap:var(--space-2)">
                     <button class="btn btn--ghost btn--sm js-edit-cat" data-id="${esc(c.id)}">✏️</button>
@@ -111,7 +125,7 @@ function showCategoryModal(category = null) {
           </div>
           <div class="form-group">
             <label class="form-label">الترتيب</label>
-            <input type="number" name="order" class="form-input" value="${isEdit ? (category.order ?? '') : ''}" min="0" />
+            <input type="number" name="sort_order" class="form-input" value="${isEdit ? (category.sort_order ?? category.order ?? '') : ''}" min="0" />
           </div>
         </div>
       </form>
@@ -124,7 +138,7 @@ function showCategoryModal(category = null) {
 
   const saveBtn = document.getElementById('saveCategoryBtn');
   if (saveBtn) {
-    saveBtn.addEventListener('click', () => {
+    saveBtn.addEventListener('click', async () => {
       const form = document.getElementById('categoryForm');
       if (!form) return;
       const data = collectFormData(form);
@@ -132,15 +146,23 @@ function showCategoryModal(category = null) {
         showToast('يرجى إدخال اسم التصنيف', 'error');
         return;
       }
-      upsertCategory({
-        id: isEdit ? category.id : generateId('cat'),
+      const payload = {
         name: data.name.trim(),
         icon: data.icon || '📂',
-        order: data.order ? Number(data.order) : 0,
-      });
-      closeModal();
-      setHTML('#categoriesTable', renderCategoriesTable());
-      showToast(isEdit ? 'تم تعديل التصنيف' : 'تم إضافة التصنيف', 'success');
+        sort_order: data.sort_order ? Number(data.sort_order) : 0,
+      };
+      try {
+        if (isEdit) {
+          await api.updateCategory(category.id, payload);
+        } else {
+          await api.createCategory(payload);
+        }
+        closeModal();
+        await refreshCategories();
+        showToast(isEdit ? 'تم تعديل التصنيف' : 'تم إضافة التصنيف', 'success');
+      } catch (err) {
+        showToast(err.message || 'حدث خطأ', 'error');
+      }
     });
   }
 }
