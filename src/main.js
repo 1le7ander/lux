@@ -11,7 +11,7 @@ import { renderFooter } from './components/Footer.js';
 import { renderAnnouncementBar } from './components/AnnouncementBar.js';
 import { initAnimations } from './animations/init.js';
 import { wrapAdminLayout, initAdminLayout } from './pages/admin/AdminLayout.js';
-import { isAdminLoggedIn } from './state.js';
+import { isAdminLoggedIn, clearAdminSession, setAdminSession } from './state.js';
 import * as api from './api/client.js';
 
 /* ── Load data from API, fallback to seed ─────────────────── */
@@ -170,6 +170,13 @@ function dismissPreloader() {
 
 /* ── Boot ────────────────────────────────────────── */
 async function boot() {
+  // Sync admin session: if API client has tokens, ensure state reflects it
+  if (api.isLoggedIn() && !isAdminLoggedIn()) {
+    setAdminSession(sessionStorage.getItem('luxe_access_token'));
+  } else if (!api.isLoggedIn() && isAdminLoggedIn()) {
+    clearAdminSession();
+  }
+
   await loadData();
   renderAnnouncementBar();
   renderHeader();

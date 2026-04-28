@@ -58,7 +58,7 @@ export default function AdminOffersPage() {
 
 async function refreshOffers() {
   try {
-    const offers = await api.getOffers();
+    const offers = await api.getAdminOffers();
     if (Array.isArray(offers)) setOffers(offers);
   } catch { /* use cached */ }
   setHTML('#offersTable', renderOffersTable());

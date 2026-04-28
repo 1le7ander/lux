@@ -3,9 +3,19 @@
  * Handles JWT auth, token refresh, and request/response formatting.
  */
 
-let _accessToken = null;
-let _refreshToken = null;
+const TOKEN_KEY = 'luxe_access_token';
+const REFRESH_KEY = 'luxe_refresh_token';
+
+let _accessToken = sessionStorage.getItem(TOKEN_KEY);
+let _refreshToken = sessionStorage.getItem(REFRESH_KEY);
 let _refreshPromise = null;
+
+function persistTokens() {
+  if (_accessToken) sessionStorage.setItem(TOKEN_KEY, _accessToken);
+  else sessionStorage.removeItem(TOKEN_KEY);
+  if (_refreshToken) sessionStorage.setItem(REFRESH_KEY, _refreshToken);
+  else sessionStorage.removeItem(REFRESH_KEY);
+}
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -29,10 +39,12 @@ async function refreshAccessToken() {
       if (!res.ok) {
         _accessToken = null;
         _refreshToken = null;
+        persistTokens();
         throw new Error('فشل تحديث التوكن');
       }
       const data = await res.json();
       _accessToken = data.access_token;
+      persistTokens();
       return _accessToken;
     })
     .finally(() => { _refreshPromise = null; });
@@ -72,12 +84,14 @@ export async function login(username, password) {
   });
   _accessToken = data.access_token;
   _refreshToken = data.refresh_token;
+  persistTokens();
   return data;
 }
 
 export function logout() {
   _accessToken = null;
   _refreshToken = null;
+  persistTokens();
 }
 
 export function isLoggedIn() {

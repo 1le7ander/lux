@@ -13,6 +13,22 @@ from models.schemas import OrderCreate, OrderOut, OrderStatusUpdate
 
 router = APIRouter(prefix="/api", tags=["orders"])
 
+WILAYA_FEES = {
+    '01': 900, '02': 700, '03': 800, '04': 700, '05': 700,
+    '06': 600, '07': 800, '08': 900, '09': 500, '10': 600,
+    '11': 900, '12': 800, '13': 700, '14': 700, '15': 600,
+    '16': 500, '17': 700, '18': 700, '19': 600, '20': 700,
+    '21': 700, '22': 700, '23': 700, '24': 700, '25': 600,
+    '26': 600, '27': 700, '28': 700, '29': 700, '30': 800,
+    '31': 600, '32': 800, '33': 900, '34': 700, '35': 500,
+    '36': 700, '37': 900, '38': 700, '39': 800, '40': 800,
+    '41': 700, '42': 500, '43': 700, '44': 600, '45': 800,
+    '46': 700, '47': 800, '48': 700, '49': 900, '50': 900,
+    '51': 800, '52': 900, '53': 900, '54': 900, '55': 800,
+    '56': 900, '57': 800, '58': 800,
+}
+DEFAULT_DELIVERY_FEE = 600
+
 
 def _generate_ref() -> str:
     ts = int(time.time())
@@ -76,7 +92,7 @@ async def create_order(body: OrderCreate):
             if updated.rowcount == 0:
                 raise HTTPException(status_code=409, detail=f"Race condition: الكمية من '{product['name']}' نفدت")
 
-        delivery_fee = 600
+        delivery_fee = WILAYA_FEES.get(body.customer_wilaya, DEFAULT_DELIVERY_FEE)
         total = subtotal + delivery_fee
 
         await db.execute(
