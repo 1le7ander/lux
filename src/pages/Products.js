@@ -90,7 +90,7 @@ export default function ProductsPage() {
 
 function updateGrid(cat, sort) {
   const { products } = getState();
-  const filtered = cat === 'all' ? products : products.filter((p) => p.category === cat);
+  const filtered = cat === 'all' ? products : products.filter((p) => (p.category_id ?? p.category) === cat);
   const sorted = sortProducts(filtered, sort);
   const el = $('#productsGrid');
   if (el) {
@@ -105,11 +105,11 @@ function sortProducts(products, sort) {
     case 'featured':
       return sorted.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
     case 'price-asc':
-      return sorted.sort((a, b) => (a.salePrice ?? a.price) - (b.salePrice ?? b.price));
+      return sorted.sort((a, b) => (a.sale_price ?? a.salePrice ?? a.price) - (b.sale_price ?? b.salePrice ?? b.price));
     case 'price-desc':
-      return sorted.sort((a, b) => (b.salePrice ?? b.price) - (a.salePrice ?? a.price));
+      return sorted.sort((a, b) => (b.sale_price ?? b.salePrice ?? b.price) - (a.sale_price ?? a.salePrice ?? a.price));
     case 'newest':
-      return sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      return sorted.sort((a, b) => new Date(b.created_at ?? b.createdAt) - new Date(a.created_at ?? a.createdAt));
     case 'name':
       return sorted.sort((a, b) => a.name.localeCompare(b.name, 'ar'));
     default:

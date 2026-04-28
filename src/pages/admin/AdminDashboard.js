@@ -49,11 +49,11 @@ export default function AdminDashboardPage() {
                   <div class="admin-order-row">
                     <div>
                       <div style="font-weight:600">#${esc(o.ref || o.id)}</div>
-                      <div class="text-sm text-muted">${esc(o.customer?.fullName || '—')}</div>
+                      <div class="text-sm text-muted">${esc(o.customer_name ?? o.customer?.fullName ?? '—')}</div>
                     </div>
                     <div style="text-align:end">
                       <div class="gold-text">${fmtDZD(o.total)}</div>
-                      <div class="text-sm text-muted">${fmtDate(o.createdAt)}</div>
+                      <div class="text-sm text-muted">${fmtDate(o.created_at ?? o.createdAt)}</div>
                     </div>
                   </div>
                 `).join('')}
@@ -98,7 +98,7 @@ async function initSalesChart(orders) {
       const key = date.toISOString().split('T')[0];
       days.push(date.toLocaleDateString('ar-DZ', { weekday: 'short' }));
       const dayOrders = orders.filter(
-        (o) => o.createdAt?.startsWith(key) && o.status !== 'cancelled'
+        (o) => (o.created_at ?? o.createdAt)?.startsWith(key) && o.status !== 'cancelled'
       );
       revenues.push(dayOrders.reduce((s, o) => s + (o.total || 0), 0));
     }

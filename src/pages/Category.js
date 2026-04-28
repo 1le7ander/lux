@@ -11,7 +11,7 @@ import { applyScrollReveals } from '../animations/init.js';
 export default function CategoryPage({ id }) {
   const { categories, products } = getState();
   const category = categories.find((c) => c.id === id);
-  const catProducts = products.filter((p) => p.category === id);
+  const catProducts = products.filter((p) => (p.category_id ?? p.category) === id);
 
   if (!category) {
     return {

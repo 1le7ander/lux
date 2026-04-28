@@ -118,8 +118,8 @@ if DIST_DIR.exists() and (DIST_DIR / "index.html").exists():
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
         """Serve frontend SPA — static files or fallback to index.html."""
-        file_path = DIST_DIR / full_path
-        if full_path and file_path.exists() and file_path.is_file():
+        file_path = (DIST_DIR / full_path).resolve()
+        if full_path and file_path.is_relative_to(DIST_DIR.resolve()) and file_path.is_file():
             return FileResponse(str(file_path))
         return FileResponse(str(DIST_DIR / "index.html"))
 
